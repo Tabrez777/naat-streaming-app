@@ -1,44 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const PlayPage = ({ 
-  naat, onClose, 
-  isPlaying, togglePlay, currentTime, duration, handleSeek, 
-  volume, handleVolumeChange 
+  naat, 
+  onClose, 
+  isPlaying, 
+  togglePlay, 
+  currentTime, 
+  duration, 
+  handleSeek, 
+  volume, 
+  handleVolumeChange 
 }) => {
+
+  // --- STATE ---
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Mock data for playlists
+  const userPlaylists = [
+    { id: 1, name: "Morning Naats" },
+    { id: 2, name: "Favorites" },
+    { id: 3, name: "Friday Special" },
+  ];
+
+  // --- FUNCTIONS ---
+  const handleAddPlaylist = (playlistName) => {
+    console.log(`Successfully added Naat to ${playlistName}`);
+    setIsMenuOpen(false);
+  };
 
   const formatTime = (time) => {
     if(!time || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  }
+  };
 
-  // --- DOWNLOAD LOGIC ---
   const handleDownload = async () => {
-    // If there is no track, do nothing
     if (!naat?.audioUrl) return;
 
     try {
-      // 1. Fetch the actual audio file from your public folder
       const response = await fetch(naat.audioUrl);
       const blob = await response.blob();
-
-      // 2. Create a temporary, hidden link in the browser
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-
-      // 3. Force the download name to be the Song Title!
       link.download = `${naat.title || 'Track'}.mp3`;
-
-      // 4. Fake a click on the link to trigger the download
+      
       document.body.appendChild(link);
       link.click();
-
-      // 5. Clean up the invisible link so it doesn't slow down the app
+      
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
     } catch (error) {
       console.error("Download failed:", error);
       alert("Failed to download track.");
@@ -77,7 +89,7 @@ const PlayPage = ({
           </button>
         </div>
 
-        {/* 4. Timeline Bar (NOW FUNCTIONAL) */}
+        {/* 4. Timeline Bar */}
         <div className="w-full px-4 mb-6 shrink-0">
           <div className="w-full flex items-center gap-3 text-sm text-neutral-400 font-medium">
             <span>{formatTime(currentTime)}</span>
@@ -92,15 +104,49 @@ const PlayPage = ({
 
         {/* 5. Main Playback Controls */}
         <div className="w-full flex justify-between items-center px-4 mb-8 shrink-0">
-          <button className="text-neutral-400 hover:text-white transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 17l4-4-4-4M8 7l-4 4 4 4"/></svg>
-          </button>
           
+          {/* --- LEFT SIDE: Add to Playlist & Shuffle --- */}
+          <div className="flex items-center gap-4 w-20">
+            {/* Add to Playlist Container */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className={`transition-colors ${isMenuOpen ? 'text-green-500' : 'text-neutral-400 hover:text-white'}`}
+                title="Add to Playlist"
+              >
+                <svg className="w-6 h-6 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+              </button>
+
+              {/* The Glassy Dropdown Menu */}
+              {isMenuOpen && (
+                <div className="absolute bottom-full mb-4 left-0 w-48 bg-neutral-800/95 backdrop-blur-md border border-neutral-600 rounded-lg shadow-xl overflow-hidden z-50">
+                  <div className="px-3 py-2 border-b border-neutral-600 bg-neutral-900/50">
+                    <p className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">Save to...</p>
+                  </div>
+                  <div className="max-h-40 overflow-y-auto flex flex-col">
+                    {userPlaylists.map((playlist) => (
+                      <button
+                        key={playlist.id}
+                        onClick={() => handleAddPlaylist(playlist.name)}
+                        className="text-left px-4 py-2 text-sm text-neutral-200 hover:bg-neutral-600 hover:text-white transition-colors focus:outline-none"
+                      >
+                        {playlist.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Shuffle Button */}
+            
+          </div>
+          
+          {/* --- CENTER: Prev, Play, Next --- */}
           <button className="text-white hover:text-green-500 transition-colors">
             <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
           
-          {/* BIG PLAY/PAUSE (NOW FUNCTIONAL) */}
           <button onClick={togglePlay} className="w-20 h-20 flex items-center justify-center bg-green-500 text-black rounded-full hover:scale-105 transition-transform shadow-lg shrink-0">
             {isPlaying ? (
               <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
@@ -113,9 +159,13 @@ const PlayPage = ({
             <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
           
-          <button className="text-neutral-400 hover:text-white transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          </button>
+          {/* --- RIGHT SIDE: Repeat --- */}
+          <div className="flex items-center justify-end w-20">
+            <button className="text-neutral-400 hover:text-white transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
+          </div>
+
         </div>
 
         {/* 6. Bottom Utilities */}
@@ -129,7 +179,7 @@ const PlayPage = ({
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
           </button>
 
-          {/* Volume Control (NOW FUNCTIONAL) */}
+          {/* Volume Control */}
           <div className="flex items-center gap-3 w-1/3 max-w-37.5">
             <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2.586l3.707 3.707A1 1 0 0015 19V5a1 1 0 00-1.707-.707L9.586 8H7a2 2 0 00-2 2z"></path></svg>
             <input 
