@@ -9,23 +9,35 @@ const PlayPage = ({
   duration, 
   handleSeek, 
   volume, 
-  handleVolumeChange 
+  handleVolumeChange,
+  // Pass the actual playlists from your parent app here. 
+  // We default to an empty array so you can test the random creation!
+  userPlaylists = [] 
 }) => {
 
-  // --- STATE ---
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  // Mock data for playlists
-  const userPlaylists = [
-    { id: 1, name: "Morning Naats" },
-    { id: 2, name: "Favorites" },
-    { id: 3, name: "Friday Special" },
-  ];
 
-  // --- FUNCTIONS ---
+  // --- NEW LOGIC: Handling the Save Action ---
   const handleAddPlaylist = (playlistName) => {
+    // In a full app, you would also trigger a function passed via props 
+    // to actually update the main database/state here.
     console.log(`Successfully added Naat to ${playlistName}`);
     setIsMenuOpen(false);
+  };
+
+  // --- NEW LOGIC: The Plus Button Click ---
+  const handlePlusClick = () => {
+    if (userPlaylists.length === 0) {
+      // If no playlists exist, generate a random one and save immediately
+      const randomID = Math.floor(Math.random() * 1000);
+      const randomName = `Auto-Playlist #${randomID}`;
+      
+      handleAddPlaylist(randomName);
+      alert(`No playlists found. Automatically created and added to: ${randomName}`);
+    } else {
+      // Playlists exist, just open the menu
+      setIsMenuOpen(!isMenuOpen);
+    }
   };
 
   const formatTime = (time) => {
@@ -109,12 +121,14 @@ const PlayPage = ({
           <div className="flex items-center gap-4 w-20">
             {/* Add to Playlist Container */}
             <div className="relative">
+              
+              {/* UPDATED BUTTON TRIGGER */}
               <button 
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                onClick={handlePlusClick}
                 className={`transition-colors ${isMenuOpen ? 'text-green-500' : 'text-neutral-400 hover:text-white'}`}
                 title="Add to Playlist"
               >
-                <svg className="w-6 h-6 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
               </button>
 
               {/* The Glassy Dropdown Menu */}

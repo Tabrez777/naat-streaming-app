@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
-const Sidebar = () => {
+const Sidebar = ({playlists = [], setPlaylists}) => {
   // 1. State to hold user-created playlists
-  const [playlists, setPlaylists] = useState([]);
   
   // 2. State to toggle the input field
   const [isCreating, setIsCreating] = useState(false);

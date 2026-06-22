@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Navbar from './components/Navbar'
-import Playlist from './components/Playlist'
 import Main from './components/Main'
 import PlayBar from './components/PlayBar'
 import PlayPage from './components/PlayPage'
+import Sidebar from './components/Sidebar'
 
 function App() {
+  const [playlists, setPlaylists] = useState([]);
   const [currentNaat, setCurrentNaat] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -89,6 +90,7 @@ function App() {
           <PlayPage 
             naat={currentNaat} 
             onClose={() => setIsExpanded(false)} 
+            userPlaylists={playlists}
             {...audioProps} 
           />
         </div>
@@ -96,7 +98,9 @@ function App() {
         <>
           <Navbar />
           <div className='flex gap-5 p-2 flex-1 overflow-hidden pb-24'>
-            <Playlist />
+            <Sidebar 
+            playlists={playlists}
+            setPlaylists={setPlaylists}/>
             <Main onPlay={(naat) => setCurrentNaat(naat)} />
           </div>
         </>
