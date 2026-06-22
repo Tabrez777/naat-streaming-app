@@ -1,31 +1,30 @@
 import React, { useState } from 'react';
 
-const Playlist = () => {
-  // 1. State to hold our array of playlists
+const Sidebar = () => {
+  // 1. State to hold user-created playlists
   const [playlists, setPlaylists] = useState([]);
   
-  // 2. State to toggle the input field on and off
+  // 2. State to toggle the input field
   const [isCreating, setIsCreating] = useState(false);
   
-  // 3. State to hold the text the user is typing
+  // 3. State for the new playlist input text
   const [newPlaylistName, setNewPlaylistName] = useState("");
 
-  // Function to handle saving the playlist
+  // 4. Track active navigation tab
+  const [activeTab, setActiveTab] = useState("Home");
+
+  // Handle creating a new playlist on Enter
   const handleSavePlaylist = (e) => {
-    // If the user presses Enter and the input isn't empty
     if (e.key === 'Enter' && newPlaylistName.trim() !== "") {
       const newPlaylist = {
-        id: Date.now(), // Generate a unique ID
+        id: Date.now(),
         name: newPlaylistName,
         trackCount: 0,
       };
-      
-      setPlaylists([...playlists, newPlaylist]); // Add to the list
-      setNewPlaylistName(""); // Clear the input
-      setIsCreating(false); // Hide the input field
+      setPlaylists([newPlaylist, ...playlists]); // Add to top of custom playlists
+      setNewPlaylistName("");
+      setIsCreating(false);
     }
-    
-    // Cancel if they press Escape
     if (e.key === 'Escape') {
       setIsCreating(false);
       setNewPlaylistName("");
@@ -33,31 +32,100 @@ const Playlist = () => {
   };
 
   return (
-    <div className="w-1/4 h-[85vh] border-2 flex flex-col rounded-lg p-4 bg-neutral-700 text-white">
+    <aside className="w-64 h-screen bg-black text-white flex flex-col pt-3 pb-6 px-4 select-none border-r border-neutral-900">
       
-      {/* Header Wrapper */}
-      <div className="flex flex-row items-center justify-between w-full mb-6">
-        <p className="text-xl font-bold">Playlist</p>
-
-        {/* Add Button */}
-        <button 
-          onClick={() => setIsCreating(true)}
-          className="flex items-center gap-2 group hover:opacity-80 transition-opacity focus:outline-none"
-        >
-          <div className="flex items-center justify-center cursor-pointer w-8 h-8 bg-neutral-700 rounded-sm group-hover:bg-neutral-600 transition-colors duration-300">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+      {/* 🍔 Top Header: Menu & Logo */}
+      {/* <div className="flex items-center gap-4 px-2 mb-4 h-12">
+        <button className="text-white hover:bg-neutral-800 p-2 rounded-full transition duration-200 focus:outline-none">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <div className="flex items-center gap-1.5 cursor-pointer">
+          
+          <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center">
+            <svg className="w-3 h-3 text-white fill-current translate-x-[1px]" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
             </svg>
           </div>
-          <span className="font-semibold text-sm">Create</span>
+          <span className="text-xl font-bold tracking-tight font-sans">Music</span>
+        </div>
+      </div> */}
+
+      {/* 🧭 Main Navigation Links */}
+      <div className="flex flex-col gap-1 mb-2">
+        {/* Home */}
+        <button 
+          onClick={() => setActiveTab("Home")}
+          className={`flex items-center gap-6 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 ${
+            activeTab === 'Home' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-300 hover:bg-neutral-900'
+          }`}
+        >
+          <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+            <path d="M4 10V21h6v-6h4v6h6V10l-8-7z" />
+          </svg>
+          Home
         </button>
+
+        {/* Explore */}
+        {/* <button 
+          onClick={() => setActiveTab("Explore")}
+          className={`flex items-center gap-6 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 ${
+            activeTab === 'Explore' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-300 hover:bg-neutral-900'
+          }`}
+        >
+          <svg className="w-6 h-6 fill-none stroke-current" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88" fill="currentColor" />
+          </svg>
+          Explore
+        </button> */}
+
+        {/* Library */}
+        {/* <button 
+          onClick={() => setActiveTab("Library")}
+          className={`flex items-center gap-6 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 ${
+            activeTab === 'Library' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-300 hover:bg-neutral-900'
+          }`}
+        >
+          <svg className="w-6 h-6 fill-none stroke-current" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 5h14l1 14H4L5 5z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 9h6" />
+          </svg>
+          Library
+        </button> */}
+
+        {/* Upgrade */}
+        {/* <button 
+          onClick={() => setActiveTab("Upgrade")}
+          className={`flex items-center gap-6 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 ${
+            activeTab === 'Upgrade' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-300 hover:bg-neutral-900'
+          }`}
+        >
+          <svg className="w-6 h-6 fill-none stroke-current" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" />
+            <polygon points="10 8 16 12 10 16" fill="currentColor" />
+          </svg>
+          Upgrade
+        </button> */}
       </div>
 
-      {/* Playlist Container */}
-      <div className="flex flex-col gap-3 overflow-y-auto">
-        
-        {/* The Input Field (Only shows when isCreating is true) */}
-        {isCreating && (
+      {/* ➖ Divider Line */}
+      <hr className="border-neutral-800 my-2 mx-2" />
+
+      {/* ➕ New Playlist Pill Button */}
+      <div className="px-2 py-2">
+        {!isCreating ? (
+          <button 
+            onClick={() => setIsCreating(true)}
+            className="w-full flex items-center justify-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-white text-sm font-medium py-2.5 px-4 rounded-full transition-colors duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            New playlist
+          </button>
+        ) : (
           <input
             autoFocus
             type="text"
@@ -65,41 +133,48 @@ const Playlist = () => {
             value={newPlaylistName}
             onChange={(e) => setNewPlaylistName(e.target.value)}
             onKeyDown={handleSavePlaylist}
-            onBlur={() => setIsCreating(false)} // Hides if they click away
-            className="w-full px-3 py-2 text-sm bg-neutral-800 text-white rounded-md border border-neutral-500 focus:outline-none focus:border-white transition-colors"
+            onBlur={() => setIsCreating(false)}
+            className="w-full px-4 py-2 text-sm bg-neutral-900 text-white rounded-full border border-neutral-700 focus:outline-none focus:border-neutral-500 transition-colors"
           />
         )}
+      </div>
 
-        {/* Map through the playlists array and render them */}
+      {/* 📜 Auto Playlists Container */}
+      <div className="flex-1 overflow-y-auto px-2 flex flex-col gap-4 mt-3 scrollbar-none">
+        
+        {/* Liked Music */}
+        <div className="flex flex-col cursor-pointer group">
+          <span className="text-sm font-medium text-neutral-200 group-hover:text-white flex items-center gap-1.5">
+            Liked Music
+            {/* Thumbtack / Pin Icon */}
+            <svg className="w-3.5 h-3.5 text-neutral-400 transform rotate-45" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+            </svg>
+          </span>
+          <span className="text-xs text-neutral-400 mt-0.5">Auto playlist</span>
+        </div>
+
+        {/* Episodes for Later */}
+        <div className="flex flex-col cursor-pointer group">
+          <span className="text-sm font-medium text-neutral-200 group-hover:text-white">
+            Episodes for Later
+          </span>
+          <span className="text-xs text-neutral-400 mt-0.5">Auto playlist</span>
+        </div>
+
+        {/* Custom Created Playlists */}
         {playlists.map((playlist) => (
-          <div 
-            key={playlist.id} 
-            className="flex flex-row items-center gap-3 p-2 rounded-md hover:bg-neutral-600 cursor-pointer transition-colors group"
-          >
-            {/* Thumbnail Placeholder */}
-            <div className="w-12 h-12 bg-neutral-500 rounded-md flex-shrink-0 flex items-center justify-center">
-              <svg className="w-6 h-6 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
-            </div>
-            
-            {/* Text Content */}
-            <div className="flex flex-col overflow-hidden">
-              <p className="font-semibold text-sm truncate text-white">{playlist.name}</p>
-              <p className="text-xs text-neutral-400 truncate">Playlist • {playlist.trackCount} tracks</p>
-            </div>
+          <div key={playlist.id} className="flex flex-col cursor-pointer group">
+            <span className="text-sm font-medium text-neutral-200 group-hover:text-white truncate">
+              {playlist.name}
+            </span>
+            <span className="text-xs text-neutral-400 mt-0.5">Playlist • {playlist.trackCount} tracks</span>
           </div>
         ))}
-
-        {/* Empty State (Only shows if no playlists AND not creating one) */}
-        {playlists.length === 0 && !isCreating && (
-          <div className="flex flex-col items-center justify-center h-40 text-center text-neutral-400">
-            <p className="text-sm">You don't have any playlists yet.</p>
-            <p className="text-xs mt-1">Click 'Create' to make one.</p>
-          </div>
-        )}
-
       </div>
-    </div>
+
+    </aside>
   );
 };
 
-export default Playlist;
+export default Sidebar;
