@@ -29,6 +29,20 @@ const recentSongs = [
     artist: "Ustad Nusrat Fateh Ali Khan",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0veoupnIhkRIDt0GgE3_m5wpbHc1L-r_c_SgjbxWuaQ&s=10",
     audioUrl: "/audios/ALLAH ALLAH ALLAH HO.mp3" // Put this file in public/audios/
+  },
+  {
+    id: 4,
+    title: "ALLAH ALLAH ALLAH HO",
+    artist: "Ustad Nusrat Fateh Ali Khan",
+    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0veoupnIhkRIDt0GgE3_m5wpbHc1L-r_c_SgjbxWuaQ&s=10",
+    audioUrl: "/audios/ALLAH ALLAH ALLAH HO.mp3" // Put this file in public/audios/
+  },
+  {
+    id: 4,
+    title: "ALLAH ALLAH ALLAH HO",
+    artist: "Ustad Nusrat Fateh Ali Khan",
+    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0veoupnIhkRIDt0GgE3_m5wpbHc1L-r_c_SgjbxWuaQ&s=10",
+    audioUrl: "/audios/ALLAH ALLAH ALLAH HO.mp3" // Put this file in public/audios/
   }
 ];
 
