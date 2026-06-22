@@ -6,7 +6,8 @@ const recentSongs = [
     id: 1,
     title: "Blinding Lights",
     artist: "The Weeknd",
-    coverUrl: "https://via.placeholder.com/200"
+    coverUrl: "https://via.placeholder.com/200",
+    
   },
   {
     id: 2,
@@ -22,9 +23,10 @@ const recentSongs = [
   },
   {
     id: 4,
-    title: "Cruel Summer",
-    artist: "Taylor Swift",
-    coverUrl: "https://via.placeholder.com/200"
+    title: "Aap Aaqaon k Aqa",
+    artist: "Muhammad Shakeel Qadri",
+    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_1KZAhOVmWq8L28kPDaF96O7x2Q1B1SFcVxgv_RxpxA&s=10",
+    audioUrl: "/audios/Aap Aaqaon k Aqa.mp3" // Put this file in public/audios/
   }
 ];
 

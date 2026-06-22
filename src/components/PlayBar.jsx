@@ -4,11 +4,30 @@ const PlayBar = ({ naat, isVisible }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
 
-  // Automatically trigger audio playback whenever a new Naat arrives
+  // Time States
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  // Volume States (1 = 100% volume)
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const previousVolume = useRef(1); // Remembers volume before muting
+
+  const formatTime = (time) => {
+    if(!time || isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  }
+
   useEffect(() => {
     if (naat && audioRef.current) {
-      audioRef.current.play();
-      setIsPlaying(true);
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch((error) => {
+          console.error("Browser blocked playback:", error);
+          setIsPlaying(false);
+        });
     }
   }, [naat]);
 
@@ -16,25 +35,51 @@ const PlayBar = ({ naat, isVisible }) => {
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play();
+      audioRef.current.play().catch(e => console.log(e));
     }
     setIsPlaying(!isPlaying);
   };
 
+  // --- NEW VOLUME LOGIC ---
+  const handleVolumeChange = (e) => {
+    const newVolume = Number(e.target.value);
+    setVolume(newVolume);
+    audioRef.current.volume = newVolume;
+    
+    // Automatically mute/unmute based on slider position
+    if (newVolume === 0) {
+      setIsMuted(true);
+    } else if (isMuted) {
+      setIsMuted(false);
+    }
+  };
+
+  const toggleMute = () => {
+    if (isMuted) {
+      // Unmute and restore previous volume
+      setIsMuted(false);
+      setVolume(previousVolume.current);
+      audioRef.current.volume = previousVolume.current;
+    } else {
+      // Mute and save current volume
+      setIsMuted(true);
+      previousVolume.current = volume;
+      setVolume(0);
+      audioRef.current.volume = 0;
+    }
+  };
+
   return (
-    /* DYNAMIC TAILWIND CLASS LOGIC:
-      If isVisible is true: translate-y-0 (slides up into view)
-      If isVisible is false: translate-y-full (hidden below the viewport)
-    */
-    <div className={`fixed bottom-0 left-0 w-full h-22.5 bg-neutral-950 border-t border-neutral-800 flex justify-between items-center px-6 z-50 transform transition-transform duration-500 ease-out ${
+    <div className={`fixed bottom-0 left-0 w-full h-[90px] bg-neutral-950 border-t border-neutral-800 flex justify-between items-center px-6 z-[999] transform transition-transform duration-500 ease-out ${
       isVisible ? 'translate-y-0' : 'translate-y-full'
     }`}>
       
-      {/* Hidden Audio Core */}
       <audio 
         ref={audioRef} 
         src={naat?.audioUrl} 
         onEnded={() => setIsPlaying(false)}
+        onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)}
+        onLoadedMetadata={() => setDuration(audioRef.current.duration)}
       />
 
       {/* Left Area: Metadata Descriptor */}
@@ -75,22 +120,50 @@ const PlayBar = ({ naat, isVisible }) => {
           </button>
         </div>
         
-        {/* Track Scrubbing Timeline Bar */}
-        <div className="w-full flex items-center gap-2 text-xs text-neutral-500">
-          <span>0:00</span>
-          <div className="w-full h-1 bg-neutral-700 rounded-full relative cursor-pointer group">
-            <div className="absolute top-0 left-0 h-full w-0 bg-white group-hover:bg-green-500 rounded-full"></div>
-          </div>
-          <span>0:00</span>
+        <div className="w-full flex items-center gap-2 text-xs text-neutral-400 font-medium">
+          <span className="w-10 text-right">{formatTime(currentTime)}</span>
+          
+          <input 
+            type="range" 
+            min={0} 
+            max={duration || 0} 
+            value={currentTime} 
+            onChange={(e) => {
+              const newTime = Number(e.target.value);
+              audioRef.current.currentTime = newTime;
+              setCurrentTime(newTime);
+            }}
+            className="w-full h-1 bg-neutral-600 rounded-full appearance-none cursor-pointer accent-white hover:accent-[#1ed760] transition-all"
+          />
+          
+          <span className="w-10 text-left">{formatTime(duration)}</span>
         </div>
       </div>
 
-      {/* Right Area: Supplementary System Utilities */}
+      {/* Right Area: Volume Controls */}
       <div className="flex items-center justify-end w-1/3 gap-3 text-neutral-400">
-        <svg className="w-5 h-5 cursor-pointer hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2.586l3.707 3.707A1 1 0 0015 19V5a1 1 0 00-1.707-.707L9.586 8H7a2 2 0 00-2 2z"></path></svg>
-        <div className="w-20 h-1 bg-neutral-700 rounded-full cursor-pointer">
-          <div className="w-3/4 h-full bg-neutral-400 rounded-full"></div>
-        </div>
+        
+        {/* Mute/Unmute Button */}
+        <button onClick={toggleMute} className="hover:text-white transition-colors">
+          {isMuted || volume === 0 ? (
+            /* Muted Icon */
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
+          ) : (
+            /* Volume Icon */
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5 10v4a2 2 0 002 2h2.586l3.707 3.707A1 1 0 0015 19V5a1 1 0 00-1.707-.707L9.586 8H7a2 2 0 00-2 2z"></path></svg>
+          )}
+        </button>
+
+        {/* Volume Slider */}
+        <input 
+          type="range" 
+          min={0} 
+          max={1} 
+          step={0.01} 
+          value={volume} 
+          onChange={handleVolumeChange}
+          className="w-24 h-1 bg-neutral-600 rounded-full appearance-none cursor-pointer accent-white hover:accent-[#1ed760] transition-all"
+        />
       </div>
 
     </div>

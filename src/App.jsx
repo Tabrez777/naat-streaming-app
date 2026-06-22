@@ -8,6 +8,7 @@ import PlayBar from './components/PlayBar'
 function App() {
   // 1. Start with null so the playbar is hidden initially
   const [currentNaat, setCurrentNaat] = useState(null)
+  console.log("Current Naat State in App:", currentNaat);
 
   const [user, setUser] = useState(null);
   const [showLoginModel, setShowLoginModel] = useState(false);
@@ -38,7 +39,8 @@ function App() {
 
       {/* 3. The PlayBar only appears if currentNaat is NO LONGER null */}
       {currentNaat && (
-        <PlayBar naat={currentNaat} />
+        <PlayBar naat={currentNaat}
+        isVisible={currentNaat != null} />
       )}
     </div>
   )

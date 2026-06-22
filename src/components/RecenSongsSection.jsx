@@ -24,7 +24,7 @@ const recentSongs = [
     audioUrl: "/audios/Aap Aaqaon k Aqa.mp3" // Put this file in public/audios/
   },
   {
-    id: 2,
+    id: 4,
     title: "ALLAH ALLAH ALLAH HO",
     artist: "Ustad Nusrat Fateh Ali Khan",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0veoupnIhkRIDt0GgE3_m5wpbHc1L-r_c_SgjbxWuaQ&s=10",
@@ -54,7 +54,9 @@ const RecentSongsSection = ({ onPlay }) => {
               
               {/* 3. Changed onPlay(naat) to onPlay(song) to match the map variable */}
               <button 
-                onClick={() => onPlay(song)} 
+              onClick={() => {
+                console.log("Button clicked! Sending data:", song);
+                onPlay(song)} }
                 className="absolute bottom-2 right-2 w-12 h-12 bg-[#1ed760] text-black rounded-full flex items-center justify-center opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 hover:scale-105 hover:bg-[#1fdf64] shadow-md"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 ml-1">
