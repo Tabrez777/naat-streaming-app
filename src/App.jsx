@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Navbar from './components/Navbar'
-import Playlist from './components/Playlist'
+import Sidebar from './components/Sidebar'
 import Main from './components/Main'
 import PlayBar from './components/PlayBar'
 import PlayPage from './components/PlayPage'
@@ -96,7 +96,7 @@ function App() {
         <>
           <Navbar />
           <div className='flex gap-5 p-2 flex-1 overflow-hidden pb-24'>
-            <Playlist />
+            <Sidebar />
             <Main onPlay={(naat) => setCurrentNaat(naat)} />
           </div>
         </>
