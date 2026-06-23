@@ -2,13 +2,17 @@ import React from 'react'
 import SearchBar from './SearchBar'
 import ProfileLoginButton from './ProfileLoginButton'
 
-const Navbar = ({ user, onLoginClick, onLogout }) => {
+const Navbar = ({ user, onLoginClick, onLogout, toggleSidebar }) => {
   return (
     <nav className='w-full flex justify-between items-center py-3 px-6 bg-black text-white border-b border-neutral-900'>
       
       {/* 🍔 Left Side Group: Menu Button + Logo wrapped together */}
       <div className="flex items-center gap-4">
-        <button className="text-white hover:bg-neutral-800 p-2 rounded-full transition duration-200 focus:outline-none">
+        {/* 2. Added 'md:hidden' to hide on big screens, and 'onClick' to trigger toggle */}
+        <button 
+          onClick={toggleSidebar} 
+          className="text-white hover:bg-neutral-800 p-2 rounded-full transition duration-200 focus:outline-none md:hidden"
+        >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -21,7 +25,7 @@ const Navbar = ({ user, onLoginClick, onLogout }) => {
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
-          <span className="text-xl font-bold tracking-tight font-sans">TEZ</span>
+          <span className="text-[30px] font-bold tracking-tight font-sans">TEZ</span>
         </div>
       </div>
 

@@ -1,42 +1,42 @@
 import React from 'react';
 
-// 1. Updated data with your real audio paths
+// 1. Data array with space-less audio URLs to prevent connection errors
 const recentSongs = [
   {
     id: 1,
     title: "Aa Vi Ja Wallail Zulfan Walya",
     artist: "Naat Khawan Name",
-    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBuBtBXSkmWQ3nJAgY2sO7RzOnlsZLcUrCYnRSjwpYOg&s=10", // You can replace this with a real image URL later
-    audioUrl: "/audios/Aa_Vi_Ja_Wallail_Zulfan_Walya.mp3"
+    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBuBtBXSkmWQ3nJAgY2sO7RzOnlsZLcUrCYnRSjwpYOg&s=10", 
+    audioUrl: "/audios/Aa_Vi_Ja_Wallail_Zulfan_Walya.mp3" 
   },
   {
     id: 2,
     title: "Aajao Aaqa Mai Ghar Nu",
     artist: "Nighat Asma Gulzar",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrBdJl1FXfm32a0p8ELrmEBdiyedABybli_WwEUIww4zL0JaE9LxMwbLo&s=10",
-    audioUrl: "/audios/Aajao_Aaqa_Mai_Ghar_Nu.mp3" // Put this file in public/audios/
+    audioUrl: "/audios/Aajao_Aaqa_Mai_Ghar_Nu.mp3" 
   },
   {
     id: 3,
     title: "Aap Aaqaon k Aqa",
     artist: "Muhammad Shakeel Qadri",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_1KZAhOVmWq8L28kPDaF96O7x2Q1B1SFcVxgv_RxpxA&s=10",
-    audioUrl: "/audios/Aap_Aaqaon_k_Aqa.mp3" // Put this file in public/audios/
+    audioUrl: "/audios/Aap_Aaqaon_k_Aqa.mp3" 
   },
   {
     id: 4,
     title: "ALLAH ALLAH ALLAH HO",
     artist: "Ustad Nusrat Fateh Ali Khan",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0veoupnIhkRIDt0GgE3_m5wpbHc1L-r_c_SgjbxWuaQ&s=10",
-    audioUrl: "/audios/ALLAH_ALLAH_ALLAH_HO.mp3" // Put this file in public/audios/
+    audioUrl: "/audios/ALLAH_ALLAH_ALLAH_HO.mp3" 
   }
 ];
 
-// 2. Added { onPlay } here so it can receive the function from Main.jsx
+// 2. Accepting the onPlay prop from Main.jsx
 const RecentSongsSection = ({ onPlay }) => {
   return (
     <div className="p-6 font-sans flex-col">
-      <h2 className="text-white text-2xl font-bold mb-6">Recently uploded Naats</h2>
+      <h2 className="text-white text-2xl font-bold mb-6">Recently uploaded Naats</h2>
       
       <div className="flex gap-6 overflow-x-auto snap-x [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden snap-mandatory">
         
@@ -52,11 +52,9 @@ const RecentSongsSection = ({ onPlay }) => {
                 className="w-full h-full object-cover"
               />
               
-              {/* 3. Changed onPlay(naat) to onPlay(song) to match the map variable */}
+              {/* 3. The Play Button triggering the song */}
               <button 
-              onClick={() => {
-                console.log("Button clicked! Sending data:", song);
-                onPlay(song)} }
+                onClick={() => onPlay(song)}
                 className="absolute bottom-2 right-2 w-12 h-12 bg-[#1ed760] text-black rounded-full flex items-center justify-center opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 hover:scale-105 hover:bg-[#1fdf64] shadow-md"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 ml-1">
