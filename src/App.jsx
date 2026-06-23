@@ -17,6 +17,7 @@ function App() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const previousVolume = useRef(1);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Auto-play when a new Naat is selected
   useEffect(() => {
@@ -94,9 +95,9 @@ function App() {
         </div>
       ) : (
         <>
-          <Navbar />
+          <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
           <div className='flex gap-5 p-2 flex-1 overflow-hidden pb-24'>
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
             <Main onPlay={(naat) => setCurrentNaat(naat)} />
           </div>
         </>
