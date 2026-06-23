@@ -7,42 +7,28 @@ const recentSongs = [
     title: "Aa Vi Ja Wallail Zulfan Walya",
     artist: "Naat Khawan Name",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBuBtBXSkmWQ3nJAgY2sO7RzOnlsZLcUrCYnRSjwpYOg&s=10", // You can replace this with a real image URL later
-    audioUrl: "/audios/Aa Vi Ja Wallail Zulfan Walya.mp3"
+    audioUrl: "/audios/Aa_Vi_Ja_Wallail_Zulfan_Walya.mp3"
   },
   {
     id: 2,
     title: "Aajao Aaqa Mai Ghar Nu",
     artist: "Nighat Asma Gulzar",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrBdJl1FXfm32a0p8ELrmEBdiyedABybli_WwEUIww4zL0JaE9LxMwbLo&s=10",
-    audioUrl: "/audios/Aajao Aaqa Mai Ghar Nu.mp3" // Put this file in public/audios/
+    audioUrl: "/audios/Aajao_Aaqa_Mai_Ghar_Nu.mp3" // Put this file in public/audios/
   },
   {
     id: 3,
     title: "Aap Aaqaon k Aqa",
     artist: "Muhammad Shakeel Qadri",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_1KZAhOVmWq8L28kPDaF96O7x2Q1B1SFcVxgv_RxpxA&s=10",
-    audioUrl: "/audios/Aap Aaqaon k Aqa.mp3" // Put this file in public/audios/
+    audioUrl: "/audios/Aap_Aaqaon_k_Aqa.mp3" // Put this file in public/audios/
   },
   {
     id: 4,
     title: "ALLAH ALLAH ALLAH HO",
     artist: "Ustad Nusrat Fateh Ali Khan",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0veoupnIhkRIDt0GgE3_m5wpbHc1L-r_c_SgjbxWuaQ&s=10",
-    audioUrl: "/audios/ALLAH ALLAH ALLAH HO.mp3" // Put this file in public/audios/
-  },
-  {
-    id: 4,
-    title: "ALLAH ALLAH ALLAH HO",
-    artist: "Ustad Nusrat Fateh Ali Khan",
-    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0veoupnIhkRIDt0GgE3_m5wpbHc1L-r_c_SgjbxWuaQ&s=10",
-    audioUrl: "/audios/ALLAH ALLAH ALLAH HO.mp3" // Put this file in public/audios/
-  },
-  {
-    id: 4,
-    title: "ALLAH ALLAH ALLAH HO",
-    artist: "Ustad Nusrat Fateh Ali Khan",
-    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0veoupnIhkRIDt0GgE3_m5wpbHc1L-r_c_SgjbxWuaQ&s=10",
-    audioUrl: "/audios/ALLAH ALLAH ALLAH HO.mp3" // Put this file in public/audios/
+    audioUrl: "/audios/ALLAH_ALLAH_ALLAH_HO.mp3" // Put this file in public/audios/
   }
 ];
 

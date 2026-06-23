@@ -12,16 +12,18 @@ const PlayPage = ({
   handleVolumeChange,
   // Pass the actual playlists from your parent app here. 
   // We default to an empty array so you can test the random creation!
-  userPlaylists = [] 
+  userPlaylists = [] ,
+  onSaveToPlaylist
 }) => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // --- NEW LOGIC: Handling the Save Action ---
   const handleAddPlaylist = (playlistName) => {
-    // In a full app, you would also trigger a function passed via props 
-    // to actually update the main database/state here.
-    console.log(`Successfully added Naat to ${playlistName}`);
+  if(onSaveToPlaylist){
+    onSaveToPlaylist(playlistName)
+  }
+
     setIsMenuOpen(false);
   };
 

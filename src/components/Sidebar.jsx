@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Sidebar = ({playlists = [], setPlaylists}) => {
+const Sidebar = ({playlists = [], setPlaylists, onPlaylistSelect}) => {
   // 1. State to hold user-created playlists
   
   // 2. State to toggle the input field
@@ -19,6 +19,7 @@ const Sidebar = ({playlists = [], setPlaylists}) => {
         id: Date.now(),
         name: newPlaylistName,
         trackCount: 0,
+        songs : [],
       };
       setPlaylists([newPlaylist, ...playlists]); // Add to top of custom playlists
       setNewPlaylistName("");
@@ -163,7 +164,8 @@ const Sidebar = ({playlists = [], setPlaylists}) => {
 
         {/* Custom Created Playlists */}
         {playlists.map((playlist) => (
-          <div key={playlist.id} className="flex flex-col cursor-pointer group">
+          <div key={playlist.id}
+          onClick={()=>onPlaylistSelect(playlist)} className="flex flex-col cursor-pointer group">
             <span className="text-sm font-medium text-neutral-200 group-hover:text-white truncate">
               {playlist.name}
             </span>
