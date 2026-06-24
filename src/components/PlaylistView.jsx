@@ -5,6 +5,28 @@ const PlaylistView = ({ playlist, onPlay, onBack }) => {
   if (!playlist) return null;
 
   const songs = playlist.songs || [];
+  const handleDownloadPlaylist = () => {
+    alert("Downloading a full playlist will require zipping multiple files! You can hook this up to your download logic later.");
+  };
+
+  const calculateTotalTime = (songsArray) => {
+    const totalSeconds = songsArray.reduce((total, song) => total + (song.duration || 0), 0);
+    if (totalSeconds === 0) return "";
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    if (hours > 0) {
+      return `• ${hours} hr ${minutes} min`;
+    }
+    return `• ${minutes} min`;
+  };
+
+  const formatSongTime = (seconds) => {
+    if (!seconds) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   return (
     <div className="flex-1 bg-neutral-900 rounded-lg p-6 overflow-y-auto text-white">
@@ -25,7 +47,23 @@ const PlaylistView = ({ playlist, onPlay, onBack }) => {
         <div>
           <p className="text-sm font-bold uppercase tracking-widest mb-1 text-neutral-400">Playlist</p>
           <h1 className="text-5xl font-black mb-2">{playlist.name}</h1>
-          <p className="text-neutral-400 text-sm">{songs.length} tracks</p>
+          <p className="text-neutral-400 py-2 text-sm">{songs.length} Naats  {calculateTotalTime(songs)} </p>
+
+          <div className='flex items-center gap-4'>
+            <button
+            onClick={() => songs.length > 0 && onplay(songs[0])}
+            className="w-10 h-10 bg-[#1ed760] text-black cursor-pointer rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#1fdf64] transition-all shadow-lg"
+              title="Play Playlist">
+              <svg className="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button
+            onClick={handleDownloadPlaylist}
+            className="w-10 h-10 border-2 border-neutral-500 text-neutral-400 cursor-pointer rounded-full flex items-center justify-center hover:border-white hover:text-white transition-colors"
+              title="Download Playlist"
+            ><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg></button>
+            </div>
         </div>
       </div>
 
@@ -48,6 +86,12 @@ const PlaylistView = ({ playlist, onPlay, onBack }) => {
               <div className="flex flex-col flex-1">
                 <span className="font-semibold text-white group-hover:text-green-500 transition-colors">{song.title}</span>
                 <span className="text-sm text-neutral-400">{song.artist}</span>
+              </div>
+              <div className="text-neutral-400 text-sm font-medium mr-4">
+                {formatSongTime(song.duration)}
+              </div>
+              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-700 opacity-0 group-hover:opacity-100 group-hover:bg-[#1ed760] text-white group-hover:text-black transition-all shadow-md mr-2">
+                <svg className="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
               </div>
             </div>
           ))

@@ -7,14 +7,16 @@ const recentSongs = [
     title: "Aa Vi Ja Wallail Zulfan Walya",
     artist: "Naat Khawan Name",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBuBtBXSkmWQ3nJAgY2sO7RzOnlsZLcUrCYnRSjwpYOg&s=10", 
-    audioUrl: "/audios/Aa_Vi_Ja_Wallail_Zulfan_Walya.mp3" 
+    audioUrl: "/audios/Aa_Vi_Ja_Wallail_Zulfan_Walya.mp3",
+    duration: 254 
   },
   {
     id: 2,
     title: "Aajao Aaqa Mai Ghar Nu",
     artist: "Nighat Asma Gulzar",
     coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrBdJl1FXfm32a0p8ELrmEBdiyedABybli_WwEUIww4zL0JaE9LxMwbLo&s=10",
-    audioUrl: "/audios/Aajao_Aaqa_Mai_Ghar_Nu.mp3" 
+    audioUrl: "/audios/Aajao_Aaqa_Mai_Ghar_Nu.mp3",
+    duration: 180 
   },
   {
     id: 3,
