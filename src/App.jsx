@@ -13,6 +13,7 @@ function App() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
   // --- AUDIO MASTER STATE ---
   const audioRef = useRef(null);
@@ -134,7 +135,11 @@ function App() {
       ) : (
         // NORMAL LAYOUT (Navbar + Sidebar + Main/Playlist Content)
         <>
-          <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+          <Navbar
+          user={user}
+          onLogin={(username) => setUser(username)}
+          onLogout = {() => setUser(null)}
+          toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
           <div className='flex gap-5 p-2 flex-1 overflow-hidden pb-24'>
             
             <Sidebar 

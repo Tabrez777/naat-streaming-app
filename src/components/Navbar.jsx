@@ -1,14 +1,25 @@
-import React from 'react'
-import SearchBar from './SearchBar'
+import React, { useState } from 'react'
+import SearchBar from './SearchBar' // Assuming you extract this later
 import ProfileLoginButton from './ProfileLoginButton'
+import LoginModel from './LoginModel' // <-- 1. Import the modal!
 
-const Navbar = ({ user, onLoginClick, onLogout, toggleSidebar }) => {
+// 2. I changed `onLoginClick` to `onLogin` so it can receive the username data
+const Navbar = ({ user, onLogin, onLogout, toggleSidebar }) => {
+  
+  // 3. State to control the modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 4. Handle a successful login from the modal
+  const handleLoginSuccess = (username) => {
+    onLogin(username); // Send the user data up to App.jsx
+    setIsModalOpen(false); // Close the modal
+  };
+
   return (
     <nav className='w-full flex justify-between items-center py-3 px-6 text-white border-neutral-900' style={{background:'transparent', borderBottom:'1.3px solid #77686856'}}>
       
-      {/* 🍔 Left Side Group: Menu Button + Logo wrapped together */}
+      {/* 🍔 Left Side Group */}
       <div className="flex items-center gap-4">
-        {/* 2. Added 'md:hidden' to hide on big screens, and 'onClick' to trigger toggle */}
         <button 
           onClick={toggleSidebar} 
           className="text-white hover:bg-neutral-800 p-2 rounded-full transition duration-200 focus:outline-none md:hidden"
@@ -19,7 +30,6 @@ const Navbar = ({ user, onLoginClick, onLogout, toggleSidebar }) => {
         </button>
         
         <div className="flex items-center gap-1.5 cursor-pointer">
-          {/* YouTube Music Red Play Circle */}
           <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center">
             <svg className="w-3 h-3 text-white fill-current translate-x-[1px]" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
@@ -32,7 +42,6 @@ const Navbar = ({ user, onLoginClick, onLogout, toggleSidebar }) => {
       {/* 🔍 Center Search Component Area */}
       <div className="flex-1 max-w-2xl mx-8">
         <div className="relative w-full bg-neutral-800/60 hover:bg-neutral-800 rounded-lg transition duration-200 flex items-center px-4 py-1.5 border border-transparent focus-within:border-neutral-700">
-          {/* Soft Integrated Search Icon */}
           <svg className="w-5 h-5 text-neutral-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
@@ -44,9 +53,8 @@ const Navbar = ({ user, onLoginClick, onLogout, toggleSidebar }) => {
         </div>
       </div>
       
-      {/* 📡 Right Utility Panel: Cast Icon & Profile Actions */}
+      {/* 📡 Right Utility Panel */}
       <div className="flex items-center gap-6 flex-shrink-0">
-        {/* Cast Icon */}
         <button className="text-neutral-300 hover:text-white transition duration-200 focus:outline-none" aria-label="Chromecast">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5a2 2 0 002-2V5a2 2 0 00-2-2H4a2 2 0 00-2 2v2m0 4h.01M2 17h.01M2 14h.01M6 17a2 2 0 100-4 2 2 0 000 4z" />
@@ -56,10 +64,18 @@ const Navbar = ({ user, onLoginClick, onLogout, toggleSidebar }) => {
         {/* Profile Login Action Button */}
         <ProfileLoginButton
           user={user}
-          onLoginClick={onLoginClick}
+          onLoginClick={() => setIsModalOpen(true)} // 5. Tell the button to open the modal!
           onLogout={onLogout}
         />
       </div>
+
+      {/* 6. Render the Modal when isModalOpen is true */}
+      {isModalOpen && (
+        <LoginModel 
+          onClose={() => setIsModalOpen(false)} 
+          onLogin={handleLoginSuccess} 
+        />
+      )}
 
     </nav>
   )
