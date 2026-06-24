@@ -12,6 +12,7 @@ function App() {
   const [currentNaat, setCurrentNaat] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // --- AUDIO MASTER STATE ---
   const audioRef = useRef(null);
@@ -108,7 +109,7 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen relative bg-black overflow-hidden">
+    <div className="flex flex-col h-screen relative overflow-hidden bg-linear-to-b from-neutral-900 to-black">
       
       {/* THE MASTER AUDIO TAG (Invisible) */}
       <audio 
@@ -133,10 +134,12 @@ function App() {
       ) : (
         // NORMAL LAYOUT (Navbar + Sidebar + Main/Playlist Content)
         <>
-          <Navbar />
+          <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
           <div className='flex gap-5 p-2 flex-1 overflow-hidden pb-24'>
             
             <Sidebar 
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
               playlists={playlists}
               setPlaylists={setPlaylists}
               onPlaylistSelect={(playlist) => setSelectedPlaylist(playlist)} 

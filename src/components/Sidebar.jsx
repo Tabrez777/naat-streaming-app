@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // 1. FIX: Added onPlaylistSelect to the props here so it can be used!
-const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect }) => {
+const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, isOpen, onClose }) => {
   
   // State to toggle the input field
   const [isCreating, setIsCreating] = useState(false);
@@ -32,10 +32,35 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect }) => {
   };
 
   return (
-    <aside className="w-64 h-screen bg-black text-white flex flex-col pt-3 pb-6 px-4 select-none border-r border-neutral-900">
+    <aside className={`w-64 h-screen text-white flex flex-col pt-3 pb-6 px-4 select-none border-r border-neutral-900 fixed md:static top-0 left-0 z-50 transition-transform duration-300 ease-in-out bg-linear-to-b from-neutral-900 to-black ${
+      isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+    }`} style={{ borderRight:'1.4px solid #77686856'}}>
       
       {/* 🧭 Main Navigation Links */}
       <div className="flex flex-col gap-1 mb-2">
+       <div className="flex items-center gap-4 px-2 mb-4 h-12 flex-shrink-0 md:hidden">
+  
+  {/* Close 'X' Button */}
+  <button 
+    onClick={onClose}
+    className="text-white hover:bg-neutral-800 p-2 rounded-full transition duration-200 focus:outline-none"
+    aria-label="Close sidebar"
+  >
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+  
+  {/* Red Play Circle Icon + Website Name */}
+  <div className="flex items-center gap-1.5 cursor-pointer">
+    <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center">
+      <svg className="w-3 h-3 text-white fill-current translate-x-[1px]" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z" />
+      </svg>
+    </div>
+    <span className="text-xl font-bold tracking-tight font-sans">TEZ</span>
+  </div>
+</div>
         {/* Home */}
         <button 
           onClick={() => {

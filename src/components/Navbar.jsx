@@ -4,7 +4,7 @@ import ProfileLoginButton from './ProfileLoginButton'
 
 const Navbar = ({ user, onLoginClick, onLogout, toggleSidebar }) => {
   return (
-    <nav className='w-full flex justify-between items-center py-3 px-6 bg-black text-white border-b border-neutral-900'>
+    <nav className='w-full flex justify-between items-center py-3 px-6 text-white border-neutral-900' style={{background:'transparent', borderBottom:'1.3px solid #77686856'}}>
       
       {/* 🍔 Left Side Group: Menu Button + Logo wrapped together */}
       <div className="flex items-center gap-4">
@@ -25,7 +25,7 @@ const Navbar = ({ user, onLoginClick, onLogout, toggleSidebar }) => {
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
-          <span className="text-[30px] font-bold tracking-tight font-sans">TEZ</span>
+          <span className="text-xl font-bold tracking-tight font-sans">TEZ</span>
         </div>
       </div>
 
