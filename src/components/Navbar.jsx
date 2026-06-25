@@ -96,6 +96,7 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar,onAdminClick }) => {
           user={user} 
           onClose={() => navigateTo('/')} 
           onLogout={onLogout} 
+          onAdminClick={onAdminClick}
         />
       )}
   
