@@ -6,26 +6,25 @@ import { doc, setDoc } from 'firebase/firestore';
 const SignupModal = ({ onClose, onSignupSuccess, onSwitchToLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState(''); // ✨ New explicit username state
-  const [confirmPassword, setConfirmPassword] = useState(''); // ✨ Fixed: Added distinct state
+  const [username, setUsername] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Save user layout to Firestore and LocalStorage
   const saveUserData = async (user) => {
-  const userData = {
-    uid: user.uid,
-    email: user.email,
-    username: username, // ✨ Uses the input text instead of slicing email
-    createdAt: new Date().toISOString(),
-    favoriteNaats: [],
-    playlists: []
-  };
+    const userData = {
+      uid: user.uid,
+      email: user.email,
+      username: username,
+      createdAt: new Date().toISOString(),
+      favoriteNaats: [],
+      playlists: []
+    };
 
-  await setDoc(doc(db, "users", user.uid), userData);
-  localStorage.setItem('userId', user.uid);
-  onSignupSuccess(userData);
-  onClose();
-};
+    await setDoc(doc(db, "users", user.uid), userData);
+    localStorage.setItem('userId', user.uid);
+    onSignupSuccess(userData);
+    onClose();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,15 +46,16 @@ const SignupModal = ({ onClose, onSignupSuccess, onSwitchToLogin }) => {
   const handleGoogleSignup = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      await saveUserData(result.user, true);
+      await saveUserData(result.user);
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="bg-neutral-900 w-full max-w-md p-8 rounded-2xl border border-neutral-800 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+      {/* ⚡ Change 1: Added max-w-2xl on desktop windows (md:) to handle a two-column width expansion safely */}
+      <div className="bg-neutral-900 w-full max-w-md md:max-w-2xl p-6 md:p-8 rounded-2xl border border-neutral-800 shadow-2xl relative my-auto transition-all duration-300">
         
         {/* Close Button */}
         <button onClick={onClose} className="absolute top-4 right-4 text-neutral-400 hover:text-white transition-colors">
@@ -64,14 +64,15 @@ const SignupModal = ({ onClose, onSignupSuccess, onSwitchToLogin }) => {
           </svg>
         </button>
 
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">Create an account 🎉</h2>
-          <p className="text-neutral-400">Save your favorite Naats and create playlists.</p>
+        {/* Header (Slightly reduced bottom margin for desktop snugness) */}
+        <div className="text-center mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-1.5">Create an account 🎉</h2>
+          <p className="text-neutral-400 text-sm">Save your favorite Naats and create playlists.</p>
         </div>
 
         {error && <p className="text-red-500 text-sm text-center mb-4 font-semibold">{error}</p>}
 
-        <div className='flex flex-col gap-3 mb-6'>
+        <div className='flex flex-col gap-3 mb-5'>
           <button onClick={handleGoogleSignup} className="w-full flex items-center justify-center gap-3 bg-white text-black font-bold rounded-full py-3 hover:bg-neutral-200 transition-colors">
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -83,45 +84,75 @@ const SignupModal = ({ onClose, onSignupSuccess, onSwitchToLogin }) => {
           </button>
         </div>
 
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-5">
           <div className="h-[1px] flex-1 bg-neutral-800"></div>
           <span className="text-neutral-400 text-sm font-semibold">OR</span>
           <div className="h-[1px] flex-1 bg-neutral-800"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* ✨ Username Field */}
-<div>
-  <label className="block text-white text-sm font-semibold mb-2">Username</label>
-  <input 
-    type="text" 
-    placeholder="Choose a cool username" 
-    value={username} 
-    onChange={(e) => setUsername(e.target.value)} 
-    className="w-full bg-neutral-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white border border-transparent transition-all" 
-    required 
-  />
-</div>
-          <div>
-            <label className="block text-white text-sm font-semibold mb-2">Email Address</label>
-            <input type="email" placeholder="name@domain.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-neutral-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white border border-transparent transition-all" required />
+          
+          {/* ⚡ Change 2: Grouped Username and Email side-by-side using responsive grids */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-white text-sm font-semibold mb-2">Username</label>
+              <input 
+                type="text" 
+                placeholder="Choose a cool username" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)} 
+                className="w-full bg-neutral-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white border border-transparent transition-all" 
+                required 
+              />
+            </div>
+
+            <div>
+              <label className="block text-white text-sm font-semibold mb-2">Email Address</label>
+              <input 
+                type="email" 
+                placeholder="name@domain.com" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                className="w-full bg-neutral-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white border border-transparent transition-all" 
+                required 
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-white text-sm font-semibold mb-2">Password</label>
-            <input type="password" placeholder="Password (min 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-neutral-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white border border-transparent transition-all" required />
+          {/* ⚡ Change 3: Grouped Password and Confirm Password side-by-side on desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-white text-sm font-semibold mb-2">Password</label>
+              <input 
+                type="password" 
+                placeholder="Min 6 characters" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                className="w-full bg-neutral-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white border border-transparent transition-all" 
+                required 
+              />
+            </div>
+
+            <div>
+              <label className="block text-white text-sm font-semibold mb-2">Confirm Password</label>
+              <input 
+                type="password" 
+                placeholder="Confirm Password" 
+                value={confirmPassword} 
+                onChange={(e) => setConfirmPassword(e.target.value)} 
+                className="w-full bg-neutral-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white border border-transparent transition-all" 
+                required 
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-white text-sm font-semibold mb-2">Confirm Password</label>
-            <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full bg-neutral-800 text-white rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white border border-transparent transition-all" required />
-          </div>
-
-          <button type="submit" className="w-full bg-[#1ed760] text-black font-bold rounded-full py-3.5 mt-2 hover:scale-[1.02] hover:bg-[#1fdf64] transition-all">
+          <button type="submit" className="w-full bg-[#1ed760] text-black font-bold rounded-full py-3.5 mt-2 hover:scale-[1.01] hover:bg-[#1fdf64] transition-all">
             Sign Up
           </button>
+    
         </form>
-        <p className="text-neutral-400 text-sm text-center mt-6">
+
+        <p className="text-neutral-400 text-sm text-center mt-5">
           Already have an account?{' '}
           <button onClick={onSwitchToLogin} className="text-[#1ed760] hover:underline font-bold transition-all">
             Log in here
