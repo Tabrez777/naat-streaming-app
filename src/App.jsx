@@ -5,6 +5,7 @@ import PlayBar from './components/PlayBar';
 import PlayPage from './components/PlayPage';
 import Sidebar from './components/Sidebar';
 import PlaylistView from './components/PlaylistView';
+import AdminDashboard from './components/AdminDashboard';
 
 // ✨ STEP 1: Import Firebase configurations
 import { db } from './firebase'; 
@@ -19,6 +20,7 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null); // Will now hold the complete user object from Firebase
   const [loading, setLoading] = useState(true); // Prevents flash of logged-out state
+  const [showAdmin, setShowAdmin] = useState(false);
 
   // --- AUDIO MASTER STATE ---
   const audioRef = useRef(null);
@@ -123,12 +125,23 @@ function App() {
     setSelectedPlaylist(null);
   };
 
+
+   const handleAddNewSong = (newSongData) => {
+  console.log("THE ADMIN HAS ADDED A NEW SONG:", newSongData);
+  // In the next step, we will push this to your global song array or Firebase database!
+};
+
   // ✨ STEP 4: Modified Playlist Logic (Saves data directly to Firebase Firestore)
   const handleSaveToPlaylist = async (playlistName, track) => {
     if (!track) {
       alert("Please select and play a track before adding it to a playlist!");
       return;
     }
+
+    const handleAddNewSong = (newSongData) => {
+  console.log("THE ADMIN HAS ADDED A NEW SONG:", newSongData);
+  // In the next step, we will push this to your global song array or Firebase database!
+};
 
     // Generate the updated playlists configuration array
     const updatedPlaylists = playlists.map(p => {
@@ -204,6 +217,7 @@ function App() {
             onLogin={handleLogin}    // ✨ Uses newly defined auth bridge setup
             onLogout={handleLogout}  // ✨ Handles session state resets
             toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+            onAdminClick = {() => setShowAdmin(true)}
              
           />
           <div className='flex gap-5 p-2 flex-1 overflow-hidden pb-24'>
@@ -217,16 +231,21 @@ function App() {
             />
 
             {/* DYNAMIC CONTENT AREA: Show Playlist if clicked, otherwise show Main Dashboard */}
-            {selectedPlaylist ? (
+                      {showAdmin ? (
+              <AdminDashboard 
+                onAddSong={handleAddNewSong} 
+                onBack={() => setShowAdmin(false)} 
+              />
+            ) : selectedPlaylist ? (
               <PlaylistView 
                 playlist={playlists.find(p => p.id === selectedPlaylist.id)} 
                 onPlay={(naat) => setCurrentNaat(naat)}
-                onBack={() => setSelectedPlaylist(null)} 
+                onBack={() => setSelectedPlaylist(null)}
               />
             ) : (
               <Main onPlay={(naat) => setCurrentNaat(naat)} />
             )}
-            
+                        
           </div>
         </>
       )}
