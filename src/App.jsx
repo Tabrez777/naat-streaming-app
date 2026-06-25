@@ -138,11 +138,6 @@ function App() {
       return;
     }
 
-    const handleAddNewSong = (newSongData) => {
-  console.log("THE ADMIN HAS ADDED A NEW SONG:", newSongData);
-  // In the next step, we will push this to your global song array or Firebase database!
-};
-
     // Generate the updated playlists configuration array
     const updatedPlaylists = playlists.map(p => {
       if (p.name === playlistName) {
@@ -231,7 +226,7 @@ function App() {
             />
 
             {/* DYNAMIC CONTENT AREA: Show Playlist if clicked, otherwise show Main Dashboard */}
-                      {showAdmin ? (
+                      {(showAdmin && user?.email === "mdtaffique@gmail.com") ? (
               <AdminDashboard 
                 onAddSong={handleAddNewSong} 
                 onBack={() => setShowAdmin(false)} 

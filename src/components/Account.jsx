@@ -1,7 +1,14 @@
 import React from 'react';
 import AdminDashboard from './AdminDashboard';
 
+
+
+
 const Account = ({ user, onClose, onLogout, onAdminClick }) => {
+
+  const isAdmin = user && user.email === "mdtaffique@gmail.com";
+
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
       <div className="bg-neutral-900 w-full max-w-md p-8 rounded-2xl border border-neutral-800 shadow-2xl relative text-center">
@@ -24,18 +31,20 @@ const Account = ({ user, onClose, onLogout, onAdminClick }) => {
         <div className="border-t border-neutral-800 pt-5 flex flex-col gap-3">
           
           {/* 👇 FIX: Call onClose() here, and make it full-width! 👇 */}
-          <button 
-            onClick={() => { 
-              onAdminClick(); 
-              onClose(); 
-            }}
-            className="w-full flex justify-center sm:[640px] cursor-pointer items-center gap-2 text-neutral-300 hover:text-white text-sm font-bold bg-neutral-800/80 hover:bg-neutral-700 border border-neutral-700 px-4 py-3 rounded-full transition-all hover:scale-105"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
-            </svg>
-            Add Naat
-          </button>
+          {isAdmin && (
+            <button 
+              onClick={() => { 
+                onAdminClick(); 
+                onClose(); 
+              }}
+              className="w-full flex justify-center cursor-pointer items-center gap-2 text-neutral-300 hover:text-white text-sm font-bold bg-neutral-800/80 hover:bg-neutral-700 border border-neutral-700 px-4 py-3 rounded-full transition-all hover:scale-105"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Naat
+            </button>
+          )}
           
           <button 
             onClick={() => { onLogout(); onClose(); }} 
