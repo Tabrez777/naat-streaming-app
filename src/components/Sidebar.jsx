@@ -32,7 +32,7 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, isOpen, onClo
   };
 
   return (
-    <aside className={`w-64 h-screen text-white flex flex-col pt-3 pb-6 px-4 select-none border-r border-neutral-900 fixed md:static top-0 left-0 z-50 transition-transform duration-300 ease-in-out bg-linear-to-b from-neutral-900 to-black ${
+    <aside className={`w-64 h-screen text-white flex flex-col pt-3 pb-6 px-4 select-none border-r border-neutral-900 fixed md:static top-0 left-0 z-40 transition-transform duration-300 ease-in-out bg-linear-to-b from-neutral-900 to-black ${
       isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
     }`} style={{ borderRight:'1.4px solid #77686856'}}>
       
@@ -122,12 +122,6 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, isOpen, onClo
         </div>
 
         {/* Episodes for Later */}
-        <div className="flex flex-col cursor-pointer group">
-          <span className="text-sm font-medium text-neutral-200 group-hover:text-white">
-            Episodes for Later
-          </span>
-          <span className="text-xs text-neutral-400 mt-0.5">Auto playlist</span>
-        </div>
 
         {/* Custom Created Playlists */}
         {playlists.map((playlist) => (
