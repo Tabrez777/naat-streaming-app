@@ -3,24 +3,21 @@ import React from 'react';
 // Catch the props passed down from Navbar
 const ProfileLoginButton = ({ user, onLoginClick, onLogout }) => {
   
-  // A mock profile image (Later, this can be dynamic based on the user's data)
-  const profileImageUrl = "https://via.placeholder.com/150/1ed760/000000?text=User";
-
   return (
     <div>
       {/* The Circular Button */}
       <button
-        // If there is a user, click logs them out. If no user, click opens login modal.
         onClick={user ? onLogout : onLoginClick}
         title={user ? "Click to Logout" : "Click to Login"}
         className="relative w-12 h-12 rounded-full cursor-pointer overflow-hidden bg-neutral-800 flex items-center justify-center border-2 border-transparent hover:border-[#1ed760] transition-all duration-300 shadow-md focus:outline-none"
       >
         {user ? (
-          /* Logged In State: Profile Image */
+          /* Logged In State: Dynamic Profile Image from Firebase */
           <img
-            src={profileImageUrl}
-            alt="User Profile"
+            src={user.photoURL} // ✨ This uses the actual Google profile photo
+            alt={user.displayName || "User Profile"}
             className="w-full h-full object-cover"
+            onError={(e) => { e.target.src = "https://via.placeholder.com/150/1ed760/000000?text=User"; }}
           />
         ) : (
           /* Logged Out State: Generic User Icon */
@@ -40,7 +37,6 @@ const ProfileLoginButton = ({ user, onLoginClick, onLogout }) => {
           </svg>
         )}
       </button>
-
     </div>
   );
 };

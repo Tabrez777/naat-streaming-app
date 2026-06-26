@@ -9,7 +9,7 @@ import AdminDashboard from './components/AdminDashboard';
 
 // ✨ STEP 1: Import Firebase configurations
 import { db } from './firebase'; 
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc,collection,addDoc } from 'firebase/firestore';
 
 function App() {
   // --- CORE APP STATE ---
@@ -126,10 +126,28 @@ function App() {
   };
 
 
-   const handleAddNewSong = (newSongData) => {
-  console.log("THE ADMIN HAS ADDED A NEW SONG:", newSongData);
-  // In the next step, we will push this to your global song array or Firebase database!
-};
+   const handleAddNewSong = async (newSongData) => {
+    try {
+      // ✅ FIXED: properly calling the collection function with 'db'
+      const songsCollectionRef = collection(db, "songs"); 
+      
+      const docRef = await addDoc(songsCollectionRef, {
+        title: newSongData.title,
+        artist: newSongData.artist,
+        coverUrl: newSongData.coverUrl,
+        audioUrl: newSongData.audioUrl,
+        createdAt: new Date(), // Saves the exact time it was uploaded
+      });
+      
+      console.log("Success! Naat added to cloud with ID: ", docRef.id);
+      alert("Naat uploaded to Firebase successfully! 🎉");
+
+      setShowAdmin(false);
+    } catch (error) {
+      console.error("🔥 Error adding Naat to Firebase: ", error);
+      alert("Uh oh! Failed to upload. Check the console for details.");
+    }
+  };
 
   // ✨ STEP 4: Modified Playlist Logic (Saves data directly to Firebase Firestore)
   const handleSaveToPlaylist = async (playlistName, track) => {

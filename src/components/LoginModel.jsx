@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { auth, db, googleProvider } from '../firebase';
+
+// 👇 1. Import your tools from your separate firebase.js file
+import { auth, db, googleProvider } from '../firebase'; 
+
+// 👇 2. Import the specific Firebase functions we need
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -109,7 +113,7 @@ const LoginModal = ({ onClose, onLoginSuccess, onSwitchToSignup }) => {
         <p className="text-neutral-400 text-sm text-center mt-6">
           Don't have an account?{' '}
           <button onClick={onSwitchToSignup} className="text-[#1ed760] hover:underline font-bold transition-all">
-            Sign up up for free
+            Sign up for free
           </button>
         </p>
       </div>

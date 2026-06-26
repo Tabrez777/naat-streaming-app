@@ -1,19 +1,22 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
-// Replace these configurations with your actual Firebase project settings
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB0jLiawN_C2FQyzDqCcGl83NC1qNp8nes",
-            authDomain: "ez-play-01.firebaseapp.com",
-            databaseURL: "https://ez-play-01-default-rtdb.firebaseio.com",
-            projectId: "ez-play-01",
-            storageBucket: "ez-play-01.firebasestorage.app",
-            messagingSenderId: "486678085182",
-            appId: "1:486678085182:web:71a80ef0f9ca483dee5b6f"
+  apiKey: "AIzaSyArhwQ2oOt1o1igrxcd3h57gVw32kvUiro",
+  authDomain: "tez-music-app.firebaseapp.com",
+  projectId: "tez-music-app",
+  storageBucket: "tez-music-app.firebasestorage.app",
+  messagingSenderId: "835722741923",
+  appId: "1:835722741923:web:ac5cac435222e7cd319716",
+  measurementId: "G-WFJ67V3FY2"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+
+// Export the tools so your app can use them
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();

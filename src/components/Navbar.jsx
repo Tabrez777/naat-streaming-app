@@ -45,7 +45,7 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar,onAdminClick }) => {
       <SearchBar /> {/* [cite: 11] */}
       
       {/* 📡 Right Utility Panel */}
-      <div className="flex items-center gap-6 flex-shrink-0">
+      <div className="flex items-center gap-6 shrink-0">
 
         <button className="text-neutral-300 hover:text-white transition duration-200 focus:outline-none" aria-label="Chromecast">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
