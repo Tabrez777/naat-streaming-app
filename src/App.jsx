@@ -21,6 +21,7 @@ function App() {
   const [user, setUser] = useState(null); // Will now hold the complete user object from Firebase
   const [loading, setLoading] = useState(true); // Prevents flash of logged-out state
   const [showAdmin, setShowAdmin] = useState(false);
+  const [songs, setSongs] = useState([]);
 
   // --- AUDIO MASTER STATE ---
   const audioRef = useRef(null);
@@ -199,6 +200,21 @@ function App() {
     );
   }
 
+  const playNext = () => {
+    console.log("Available songs:", songs);
+    if(!currentNaat || songs.length === 0) return;
+    const currentIndex = songs.findIndex(s => s.id === currentNaat.id);
+    const nextIndex = (currentIndex + 1) % songs.length;
+    setCurrentNaat(songs[nextIndex]);
+  };
+
+  const playPrevious = () => {
+    if(!currentNaat || songs.length === 0) return;
+    const currentIndex = songs.findIndex(s => s.id === currentNaat.id);
+    const previousIndex = (currentIndex - 1 + songs.length) % songs.length;
+    setCurrentNaat(songs[previousIndex]);
+  }
+
   return (
     <div className="flex flex-col h-screen relative overflow-hidden bg-linear-to-b from-neutral-900 to-black">
       
@@ -256,7 +272,10 @@ function App() {
                 onBack={() => setSelectedPlaylist(null)}
               />
             ) : (
-              <Main onPlay={(naat) => setCurrentNaat(naat)} />
+              <Main 
+              onPlay={(naat) => setCurrentNaat(naat)}
+              songs = {songs}
+              setSongs = {setSongs} />
             )}
                         
           </div>
@@ -268,6 +287,8 @@ function App() {
         naat={currentNaat} 
         isVisible={currentNaat !== null && !isExpanded} 
         onExpand={() => setIsExpanded(true)} 
+        playNext = {playNext}
+        playPrevious = {playPrevious}
         {...audioProps}
       />
 

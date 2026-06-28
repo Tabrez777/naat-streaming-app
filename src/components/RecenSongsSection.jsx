@@ -21,14 +21,10 @@ const RecentSongsSection = ({ songs, onPlay }) => {
 
   return (
     <div className="p-6 relative group">
+      
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-white">Recently Added</h2>
-        
-        {/* Navigation Arrows */}
-        <div className="flex gap-2">
-          <button onClick={() => scroll('left')} className="p-2 bg-neutral-800 rounded-full text-white hover:bg-neutral-700">◀</button>
-          <button onClick={() => scroll('right')} className="p-2 bg-neutral-800 rounded-full text-white hover:bg-neutral-700">▶</button>
-        </div>
+       
       </div>
       
       {/* Scrollable Container */}
@@ -41,8 +37,9 @@ const RecentSongsSection = ({ songs, onPlay }) => {
           <div 
             key={song.id} 
             onClick={() => onPlay(song)}
-            className="bg-neutral-800/40 p-4 rounded-xl hover:bg-neutral-800 transition-all cursor-pointer min-w-[200px] w-[200px] group"
+            className="bg-neutral-800/40 p-4 relative group rounded-xl hover:bg-neutral-800 transition-all cursor-pointer min-w-[200px] w-[200px] group"
           >
+            
             <div className="relative aspect-square mb-4">
               <img 
                 src={song.coverUrl} 
@@ -59,7 +56,26 @@ const RecentSongsSection = ({ songs, onPlay }) => {
             <p className="text-neutral-400 text-sm truncate mt-1">{song.artist}</p>
           </div>
         ))}
+        <button 
+    onClick={() => scroll('right')} 
+    className="absolute left-10 top-1/2 transform -translate-y-1/2 
+             bg-black/30 backdrop-blur-md border cursor-pointer border-white/10 
+             text-white p-4 rounded-full shadow-2xl 
+             hover:bg-black/50 hover:scale-110 transition-all z-20"
+  >
+    <img width={20} src="icons/arrow-left.png" alt="" />
+  </button>
+        <button 
+    onClick={() => scroll('right')} 
+    className="absolute right-10 top-1/2 transform -translate-y-1/2 
+             bg-black/30 backdrop-blur-md border cursor-pointer border-white/10 
+             text-white p-4 rounded-full shadow-2xl 
+             hover:bg-black/50 hover:scale-110 transition-all z-20"
+  >
+    <img width={20} src="icons/arrow-right.png" alt="" />
+  </button>
       </div>
+
     </div>
   );
 };

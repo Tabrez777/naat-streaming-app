@@ -9,8 +9,7 @@ import { db } from '../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
   
 
-const Main = ({ onPlay }) => { 
-  const [songs, setSongs] = useState([]);
+const Main = ({ onPlay, songs, setSongs }) => { 
   const [loading, setLoading] = useState(true);
 
 

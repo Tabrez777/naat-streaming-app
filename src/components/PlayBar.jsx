@@ -2,7 +2,7 @@ import React from 'react';
 
 const PlayBar = ({ 
   naat, isVisible, onExpand, 
-  isPlaying, togglePlay, currentTime, duration, handleSeek, 
+  isPlaying, togglePlay, currentTime, playNext, playPrevious, duration, handleSeek, 
   volume, isMuted, handleVolumeChange, toggleMute 
 }) => {
 
@@ -28,13 +28,13 @@ const PlayBar = ({
       </div>
 
       {/* Center Area: Play Controls */}
-      <div className="flex flex-col items-center justify-center w-1/3 gap-2">
+      <div className="flex flex-col items-center justify-center w-full md:w-1/3 gap-2">
         <div className="flex items-center gap-6">
-          <button className="text-neutral-400 hover:text-white transition-colors">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          <button onClick={playPrevious} className="text-neutral-400 cursor-pointer hover:text-white transition-colors">
+            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
 
-          <button onClick={togglePlay} className="w-9 h-9 flex items-center justify-center bg-white text-black rounded-full hover:scale-105 transition-transform shadow">
+          <button onClick={togglePlay} className="w-9 h-9 flex cursor-pointer items-center justify-center bg-white text-black rounded-full hover:scale-105 transition-transform shadow">
             {isPlaying ? (
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             ) : (
@@ -42,8 +42,8 @@ const PlayBar = ({
             )}
           </button>
 
-          <button className="text-neutral-400 hover:text-white transition-colors">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          <button onClick={playNext} className="text-neutral-400 cursor-pointer hover:text-white transition-colors">
+            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
         </div>
         
