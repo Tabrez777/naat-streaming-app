@@ -232,6 +232,8 @@ function App() {
         <div className="absolute inset-0 z-[1000] bg-black flex flex-col">
           <PlayPage 
             naat={currentNaat} 
+            playPrevious={playPrevious}
+            playNext={playNext}
             onClose={() => setIsExpanded(false)} 
             userPlaylists={playlists}
             onSaveToPlaylist={(playlistName) => handleSaveToPlaylist(playlistName, currentNaat)}

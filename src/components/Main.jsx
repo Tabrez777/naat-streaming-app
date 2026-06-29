@@ -11,6 +11,17 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 const Main = ({ onPlay, songs, setSongs }) => { 
   const [loading, setLoading] = useState(true);
+  const [artists, setArtists] = useState([]);
+
+  useEffect(() => {
+  const fetchArtists = async () => {
+    const q = collection(db, "artists");
+    const snapshot = await getDocs(q);
+    const fetchedArtists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setArtists(fetchedArtists);
+  };
+  fetchArtists();
+}, []);
 
 
   useEffect(() => {
@@ -49,7 +60,9 @@ fetchSongs();
         songs = {songs}
         />
         <OtherSongsSection/>
-        <ArtistSection/>
+        <ArtistSection
+        artists = {artists}
+        />
     </div>
   );
 }; // <--- And this closing bracket!

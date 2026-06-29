@@ -6,7 +6,7 @@ const PlayPage = ({
   isPlaying, 
   togglePlay, 
   currentTime, 
-  duration, 
+  duration, playNext, playPrevious,
   handleSeek, 
   volume, 
   handleVolumeChange,
@@ -159,7 +159,7 @@ const PlayPage = ({
           </div>
           
           {/* --- CENTER: Prev, Play, Next --- */}
-          <button className="text-white hover:text-green-500 transition-colors">
+          <button onClick={playPrevious} className="text-white hover:text-green-500 transition-colors">
             <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
           
@@ -171,7 +171,7 @@ const PlayPage = ({
             )}
           </button>
           
-          <button className="text-white hover:text-green-500 transition-colors">
+          <button onClick={playNext} className="text-white hover:text-green-500 transition-colors">
             <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
           

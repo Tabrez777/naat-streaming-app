@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { db } from '../firebase'; 
+import { collection, addDoc } from 'firebase/firestore';
 
 const AdminDashboard = ({ onAddSong, onBack }) => {
   const [title, setTitle] = useState('');
@@ -7,6 +9,10 @@ const AdminDashboard = ({ onAddSong, onBack }) => {
   const [audioUrl, setAudioUrl] = useState('');
   const [duration, setDuration] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const [name, setName] = useState('');
+  const [profession, setProfession] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -36,7 +42,29 @@ const AdminDashboard = ({ onAddSong, onBack }) => {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
+  const handleAddArtist = async (e) => {
+    e.preventDefault();
+    try {
+      // This is where you create the collection if it doesn't exist!
+      const artistRef = collection(db, "artists");
+      await addDoc(artistRef, {
+        name,
+        profession,
+        imageUrl,
+        createdAt: new Date()
+      });
+      alert("Artist added successfully! 🎉");
+      // Clear form
+      setName('');
+      setProfession('');
+      setImageUrl('');
+    } catch (error) {
+      console.error("Error adding artist: ", error);
+    }
+  };
+
   return (
+    
     <div className="flex-1 bg-neutral-900 rounded-lg p-8 h-[95vh] scrollbar-none overflow-y-auto text-white">
       
       {/* Header */}
@@ -118,9 +146,19 @@ const AdminDashboard = ({ onAddSong, onBack }) => {
           </form>
         </div>
 
-        
-        
-
+                          {/* Artist section */}
+       <div className="flex-1 bg-neutral-800 p-6 rounded-xl">
+          <h2 className="text-xl font-bold mb-4">Add New Artist</h2>
+          <form onSubmit={handleAddArtist} className="flex flex-col gap-4">
+            <input required placeholder="Artist Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-neutral-700 p-3 rounded" />
+            <input required placeholder="Profession" value={profession} onChange={(e) => setProfession(e.target.value)} className="w-full bg-neutral-700 p-3 rounded" />
+            <input required placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="w-full bg-neutral-700 p-3 rounded" />
+            
+            <button type="submit" className="bg-[#1ed760] text-black font-bold p-3 rounded hover:scale-[1.02] transition">
+              Add Artist to Database
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

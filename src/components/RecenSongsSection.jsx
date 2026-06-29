@@ -67,7 +67,7 @@ const RecentSongsSection = ({ songs, onPlay }) => {
   </button>
         <button 
     onClick={() => scroll('right')} 
-    className="absolute right-10 top-1/2 transform -translate-y-1/2 
+    className="absolute right-15 top-1/2 transform -translate-y-1/2 
              bg-black/30 backdrop-blur-md border cursor-pointer border-white/10 
              text-white p-4 rounded-full shadow-2xl 
              hover:bg-black/50 hover:scale-110 transition-all z-20"
