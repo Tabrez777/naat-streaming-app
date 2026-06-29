@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useRef } from 'react';
 
 const PlayPage = ({ 
   naat, 
@@ -6,15 +6,18 @@ const PlayPage = ({
   isPlaying, 
   togglePlay, 
   currentTime, 
-  duration, playNext, playPrevious,
+  duration, 
+  playNext, 
+  playPrevious,
   handleSeek, 
   volume, 
   handleVolumeChange,
-  // Pass the actual playlists from your parent app here. 
-  // We default to an empty array so you can test the random creation!
-  userPlaylists = [] ,
+  handleLikeNaat, // ✨ Destructured directly
+  userPlaylists = [], 
   onSaveToPlaylist
 }) => {
+  const likedPlaylist = userPlaylists.find(p => p.name === "Liked Music");
+  const isLiked = likedPlaylist?.songs?.some(s => s.id === naat?.id);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -72,10 +75,10 @@ const PlayPage = ({
   };
 
   return (
-    <div className="flex-1 w-full h-full bg-linear-to-b from-neutral-800 to-black p-6 md:p-12 relative flex flex-col overflow-y-auto">
+    <div className="flex-1 w-full h-full bg-linear-to-b from-neutral-800 to-black p-4 md:p-12 relative flex flex-col overflow-y-auto">
       
       {/* 1. Top Navigation Bar */}
-      <div className="flex justify-between items-center w-full mb-8 shrink-0">
+      <div className="pt-safe  flex justify-between items-center w-full mb-8 shrink-0">
         <button onClick={onClose} className="text-white hover:text-green-500 transition-colors p-2">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
         </button>
@@ -98,8 +101,8 @@ const PlayPage = ({
             <h1 className="text-white text-3xl md:text-4xl font-bold truncate mb-1">{naat?.title || "No Track Selected"}</h1>
             <h2 className="text-neutral-400 text-lg md:text-xl truncate">{naat?.artist || "Unknown Artist"}</h2>
           </div>
-          <button className="text-neutral-400 hover:text-green-500 transition-colors ml-4">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+          <button onClick={() => handleLikeNaat(naat)} className="text-neutral-400 hover:text-green-500 transition-colors ml-4">
+            <svg className={`w-8 h-8 transition-all duration-300 ${isLiked ? 'fill-green-500 text-green-500 scale-110' : 'text-neutral-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
           </button>
         </div>
 

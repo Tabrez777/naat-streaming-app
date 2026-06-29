@@ -10,6 +10,7 @@ import AdminDashboard from './components/AdminDashboard';
 // ✨ STEP 1: Import Firebase configurations
 import { db } from './firebase'; 
 import { doc, getDoc, updateDoc,collection,addDoc } from 'firebase/firestore';
+import { updatePassword } from 'firebase/auth';
 
 function App() {
   // --- CORE APP STATE ---
@@ -213,10 +214,35 @@ function App() {
     const currentIndex = songs.findIndex(s => s.id === currentNaat.id);
     const previousIndex = (currentIndex - 1 + songs.length) % songs.length;
     setCurrentNaat(songs[previousIndex]);
+  };
+
+  const handleLikeNaat = async (naat) => {
+    if(!user){
+      alert("Please Login to Like Naats!");
+      return;
+    }
+
+    let likedPlaylist = playlists.find(p => p.name === "Liked Music");
+    let updatedPlaylists;
+    
+    if(!likedPlaylist){
+      likedPlaylist = {id: Date.now(), name:"Liked Music", songs: [naat], trackCount:1};
+      updatedPlaylists = [...playlists, likedPlaylist]
+    }
+    else {
+      if (likedPlaylist.songs.some(s => s.id === naat.id)) return; // Already liked
+    likedPlaylist.songs = [...likedPlaylist.songs, naat];
+    likedPlaylist.trackCount = likedPlaylist.songs.length;
+    updatedPlaylists = playlists.map(p => p.name === "Liked Music" ? likedPlaylist : p);
+    }
+    setPlaylists(updatedPlaylists);
+    const userDocRef = doc(db, "users", user.uid);
+    await updateDoc(userDocRef, { playlists: updatedPlaylists });
+    alert("Added to Liked Music! ❤️");
   }
 
   return (
-    <div className="flex flex-col h-screen relative overflow-hidden bg-linear-to-b from-neutral-900 to-black">
+    <div className="flex flex-col h-screen w-screen relative overflow-hidden bg-linear-to-b from-neutral-900 to-black">
       
       {/* THE MASTER AUDIO TAG (Invisible) */}
       <audio 
@@ -236,6 +262,7 @@ function App() {
             playNext={playNext}
             onClose={() => setIsExpanded(false)} 
             userPlaylists={playlists}
+            handleLikeNaat = {handleLikeNaat}
             onSaveToPlaylist={(playlistName) => handleSaveToPlaylist(playlistName, currentNaat)}
             {...audioProps} 
           />
@@ -251,7 +278,7 @@ function App() {
             onAdminClick = {() => setShowAdmin(true)}
              
           />
-          <div className='flex gap-5 p-2 flex-1 overflow-hidden pb-24'>
+          <div className='flex w-full h-full overflow-hidden relative'>
             
             <Sidebar 
               isOpen={isSidebarOpen}
@@ -260,8 +287,10 @@ function App() {
               setPlaylists={setPlaylists}
               onPlaylistSelect={(playlist) => setSelectedPlaylist(playlist)} 
             />
+            
 
             {/* DYNAMIC CONTENT AREA: Show Playlist if clicked, otherwise show Main Dashboard */}
+            <div className='flex-1 w-full overflow-hidden relative'>
                       {(showAdmin && user?.email === "mdtaffique@gmail.com") ? (
               <AdminDashboard 
                 onAddSong={handleAddNewSong} 
@@ -279,7 +308,7 @@ function App() {
               songs = {songs}
               setSongs = {setSongs} />
             )}
-                        
+          </div>              
           </div>
         </>
       )}
