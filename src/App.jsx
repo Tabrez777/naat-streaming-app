@@ -9,7 +9,7 @@ import AdminDashboard from './components/AdminDashboard';
 
 // ✨ STEP 1: Import Firebase configurations
 import { db } from './firebase'; 
-import { doc, getDoc, updateDoc,collection,addDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, addDoc, getDocs } from 'firebase/firestore';
 import { updatePassword } from 'firebase/auth';
 
 function App() {
@@ -32,6 +32,57 @@ function App() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const previousVolume = useRef(1);
+
+  const handleAddNewSong = async (newSongData) => {
+  try {
+    // ✨ NEW: Check if this exact song title already exists in the same category
+    const isDuplicate = songs.some(
+      (song) => 
+        song.title.toLowerCase() === newSongData.title.toLowerCase() && 
+        song.category === newSongData.category
+    );
+
+    if (isDuplicate) {
+      alert("Wait! This track has already been uploaded.");
+      return; // 🛑 Stops the code here, preventing the Firebase upload
+    }
+
+    const songsCollectionRef = collection(db, "songs"); 
+    
+    // 1. Add to Firebase
+    const docRef = await addDoc(songsCollectionRef, {
+      ...newSongData,
+      createdAt: new Date(),
+    });
+    
+    // 2. Add to local state (Note: Added to the front of the array so it shows up first)
+    const newSong = { id: docRef.id, ...newSongData };
+    setSongs((prevSongs) => [newSong, ...prevSongs]); 
+    
+    console.log("Success! Track added.");
+    setShowAdmin(false);
+  } catch (error) {
+    console.error("Error adding track: ", error);
+    alert("Uh oh! Failed to upload.");
+  }
+};
+
+  useEffect(() => {
+  const fetchSongs = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "songs"));
+      const songsList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setSongs(songsList); // Update the state we created earlier
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+    }
+  };
+  
+  fetchSongs();
+}, []);
 
   // ✨ STEP 2: Persistent Auto-Login System
   // Checks localStorage on app startup and fetches all matching records from Firestore
@@ -127,30 +178,6 @@ function App() {
     setSelectedPlaylist(null);
   };
 
-
-   const handleAddNewSong = async (newSongData) => {
-    try {
-      // ✅ FIXED: properly calling the collection function with 'db'
-      const songsCollectionRef = collection(db, "songs"); 
-      
-      const docRef = await addDoc(songsCollectionRef, {
-        title: newSongData.title,
-        artist: newSongData.artist,
-        coverUrl: newSongData.coverUrl,
-        audioUrl: newSongData.audioUrl,
-        createdAt: new Date(), // Saves the exact time it was uploaded
-      });
-      
-      console.log("Success! Naat added to cloud with ID: ", docRef.id);
-      alert("Naat uploaded to Firebase successfully! 🎉");
-
-      setShowAdmin(false);
-    } catch (error) {
-      console.error("🔥 Error adding Naat to Firebase: ", error);
-      alert("Uh oh! Failed to upload. Check the console for details.");
-    }
-  };
-
   // ✨ STEP 4: Modified Playlist Logic (Saves data directly to Firebase Firestore)
   const handleSaveToPlaylist = async (playlistName, track) => {
     if (!track) {
@@ -239,7 +266,30 @@ function App() {
     const userDocRef = doc(db, "users", user.uid);
     await updateDoc(userDocRef, { playlists: updatedPlaylists });
     alert("Added to Liked Music! ❤️");
-  }
+  };
+
+  const handleUnlikeNaat = async (naat) => {
+    const likedPlaylistIndex = playlists.findIndex(p => p.name === "Liked Music");
+    if(likedPlaylistIndex === -1) return;
+
+    const likedPlaylist = {...playlists[likedPlaylistIndex]};
+
+
+    likedPlaylist.songs = likedPlaylist.songs.filter(s => s.id !== naat.id);
+  likedPlaylist.trackCount = likedPlaylist.songs.length;
+
+  // 3. Update State and Firebase
+  const updatedPlaylists = [...playlists];
+  updatedPlaylists[likedPlaylistIndex] = likedPlaylist;
+
+  setPlaylists(updatedPlaylists);
+  
+  const userDocRef = doc(db, "users", user.uid);
+  await updateDoc(userDocRef, { playlists: updatedPlaylists });
+  
+  alert("Removed from Liked Music.");
+
+  };
 
   return (
     <div className="flex flex-col h-screen w-screen relative overflow-hidden bg-linear-to-b from-neutral-900 to-black">
@@ -288,6 +338,7 @@ function App() {
               onPlaylistSelect={(playlist) => setSelectedPlaylist(playlist)} 
             />
             
+            
 
             {/* DYNAMIC CONTENT AREA: Show Playlist if clicked, otherwise show Main Dashboard */}
             <div className='flex-1 w-full overflow-hidden relative'>
@@ -301,6 +352,7 @@ function App() {
                 playlist={playlists.find(p => p.id === selectedPlaylist.id)} 
                 onPlay={(naat) => setCurrentNaat(naat)}
                 onBack={() => setSelectedPlaylist(null)}
+                onUnlike={handleUnlikeNaat}
               />
             ) : (
               <Main 
@@ -322,6 +374,7 @@ function App() {
         playPrevious = {playPrevious}
         {...audioProps}
       />
+      
 
     </div>
   );

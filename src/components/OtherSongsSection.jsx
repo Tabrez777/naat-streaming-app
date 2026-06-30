@@ -1,79 +1,81 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
-// 1. Replaced blocked placeholders with actual image links and added audio paths
-const recentSongs = [
-  {
-    id: 1,
-    title: "Blinding Lights",
-    artist: "The Weeknd",
-    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_1KZAhOVmWq8L28kPDaF96O7x2Q1B1SFcVxgv_RxpxA&s=10",
-    audioUrl: "/audios/Aa_Vi_Ja_Wallail_Zulfan_Walya.mp3" // Change this to your actual local file name
-  },
-  {
-    id: 2,
-    title: "Levitating",
-    artist: "Dua Lipa",
-    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrBdJl1FXfm32a0p8ELrmEBdiyedABybli_WwEUIww4zL0JaE9LxMwbLo&s=10",
-    audioUrl: "/audios/Aajao_Aaqa_Mai_Ghar_Nu.mp3"
-  },
-  {
-    id: 3,
-    title: "As It Was",
-    artist: "Harry Styles",
-    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBuBtBXSkmWQ3nJAgY2sO7RzOnlsZLcUrCYnRSjwpYOg&s=10",
-    audioUrl: "/audios/Aap_Aaqaon_k_Aqa.mp3"
-  },
-  {
-    id: 4,
-    title: "ALLAH_ALLAH_ALLAH_HO",
-    artist: "Muhammad Shakeel Qadri",
-    coverUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_1KZAhOVmWq8L28kPDaF96O7x2Q1B1SFcVxgv_RxpxA&s=10",
-    audioUrl: "/audios/ALLAH_ALLAH_ALLAH_HO.mp3" // Notice I removed spaces!
-  }
-];
+const OtherSongsSection = ({ onPlay, songs = [] }) => {
+  // 1. Setup the scroll reference and function
+  const scrollRef = useRef(null);
 
-// 2. Added { onPlay } as a prop
-const OtherSongsSection = ({ onPlay }) => {
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const { current } = scrollRef;
+      const scrollAmount = 300; // Adjust this to change how far it scrolls
+      current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // 2. Filter for Qawwalis only
+  const qawwalis = songs.filter(song => song.category === 'qawwali');
+
+  if (qawwalis.length === 0) return null;
+
   return (
-    <div className="p-6 font-sans flex-col">
-      <h2 className="text-white text-2xl font-bold mb-6">Other Naats You May Like.</h2>
+    <div className="p-6 relative group font-sans">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-white text-2xl font-bold">Recently Added Qawwalis</h2>
+      </div>
       
-      <div className="flex gap-6 overflow-x-auto snap-x [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden snap-mandatory">
-        
-        {recentSongs.map((song) => (
+      {/* Scrollable Container */}
+      <div 
+        ref={scrollRef}
+        className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {qawwalis.map((song) => (
           <div 
             key={song.id} 
-            className="group shrink-0 w-45 sm:w-50 snap-start bg-neutral-800 p-4 rounded-xl cursor-pointer transition-colors duration-300 hover:bg-neutral-700"
+            onClick={() => onPlay(song)}
+            className="bg-neutral-800/40 p-4 relative group rounded-xl hover:bg-neutral-800 transition-all cursor-pointer min-w-[200px] w-[200px]"
           >
-            <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-4 shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+            <div className="relative aspect-square mb-4">
               <img 
                 src={song.coverUrl} 
-                alt={`${song.title} cover`} 
-                className="w-full h-full object-cover"
+                alt={song.title} 
+                className="w-full h-full object-cover rounded-md shadow-lg"
               />
-              
-              {/* 3. Wired up the onClick event to the Play button */}
-              <button 
-                onClick={() => onPlay(song)}
-                className="absolute bottom-2 right-2 w-12 h-12 bg-[#1ed760] text-black rounded-full flex items-center justify-center opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 hover:scale-105 hover:bg-[#1fdf64] shadow-md"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 ml-1">
+              <div className="absolute bottom-2 right-2 w-12 h-12 bg-[#1ed760] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:scale-105 transition-all shadow-xl">
+                <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-              </button>
+              </div>
             </div>
-            
-            <div className="flex flex-col gap-1">
-              <h3 className="text-white text-base font-semibold truncate">
-                {song.title}
-              </h3>
-              <p className="text-neutral-400 text-sm truncate">
-                {song.artist}
-              </p>
-            </div>
+            <h3 className="text-white font-semibold truncate">{song.title}</h3>
+            <p className="text-neutral-400 text-sm truncate mt-1">{song.artist}</p>
           </div>
         ))}
-        
+
+        {/* LEFT Scroll Button (Fixed to say 'left' instead of 'right') */}
+        <button 
+          onClick={() => scroll('left')} 
+          className="absolute left-10 top-1/2 transform -translate-y-1/2 
+                     bg-black/30 backdrop-blur-md border cursor-pointer border-white/10 
+                     text-white p-4 rounded-full shadow-2xl 
+                     hover:bg-black/50 hover:scale-110 transition-all z-20"
+        >
+          <img width={20} src="icons/arrow-left.png" alt="Scroll Left" />
+        </button>
+
+        {/* RIGHT Scroll Button */}
+        <button 
+          onClick={() => scroll('right')} 
+          className="absolute right-15 top-1/2 transform -translate-y-1/2 
+                     bg-black/30 backdrop-blur-md border cursor-pointer border-white/10 
+                     text-white p-4 rounded-full shadow-2xl 
+                     hover:bg-black/50 hover:scale-110 transition-all z-20"
+        >
+          <img width={20} src="icons/arrow-right.png" alt="Scroll Right" />
+        </button>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { db } from '../firebase'; 
-import { collection, addDoc } from 'firebase/firestore';
+import {deleteDoc,doc, collection, addDoc } from 'firebase/firestore';
 
 const AdminDashboard = ({ onAddSong, onBack }) => {
   const [title, setTitle] = useState('');
@@ -13,6 +13,16 @@ const AdminDashboard = ({ onAddSong, onBack }) => {
   const [name, setName] = useState('');
   const [profession, setProfession] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+
+  const handleUpload = () => {
+  // Ensure the object you pass has these fields
+  onAddSong({
+    title: title, 
+    artist: artist,
+    coverUrl: coverUrl,
+    audioUrl: audioUrl
+  });
+};
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -41,6 +51,37 @@ const AdminDashboard = ({ onAddSong, onBack }) => {
     // Hide success message after 3 seconds
     setTimeout(() => setShowSuccess(false), 3000);
   };
+
+
+  // Paste this function inside your AdminDashboard component
+const handleRemoveDuplicates = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "songs"));
+    const seenTitles = new Set();
+    let deleteCount = 0;
+
+    // Loop through every document in Firebase
+    for (const document of querySnapshot.docs) {
+      const songData = document.data();
+      const uniqueKey = `${songData.title}-${songData.category}`.toLowerCase();
+
+      if (seenTitles.has(uniqueKey)) {
+        // If we've already seen this title, it's a duplicate. Delete it!
+        await deleteDoc(doc(db, "songs", document.id));
+        deleteCount++;
+      } else {
+        // First time seeing it, save it to our Set
+        seenTitles.add(uniqueKey);
+      }
+    }
+
+    alert(`Cleanup complete! Deleted ${deleteCount} duplicate tracks.`);
+    window.location.reload(); // Refresh to update the UI
+  } catch (error) {
+    console.error("Error deleting duplicates:", error);
+    alert("Failed to clean up database.");
+  }
+}; 
 
   const handleAddArtist = async (e) => {
     e.preventDefault();
@@ -133,9 +174,28 @@ const AdminDashboard = ({ onAddSong, onBack }) => {
           </div>
         </div>
 
-            <button type="submit" className="mt-4 w-full cursor-pointer bg-[#1ed760] text-black font-bold rounded-full py-4 hover:scale-[1.02] hover:bg-[#1fdf64] transition-all shadow-lg">
-              Upload Naat to Database
-            </button>
+            {/* Inside AdminDashboard.jsx, at the bottom of your form */}
+<div className="flex flex-col gap-4 mt-8">
+  {/* Existing Button - Tags as 'naat' */}
+  <button 
+    onClick={() => onAddSong({ 
+      title, artist, coverUrl, audioUrl, category: 'naat' 
+    })}
+    className="w-full py-3 bg-[#1ed760] text-black font-bold rounded-full hover:scale-105 transition-transform"
+  >
+    Upload as Naat (Main Section)
+  </button>
+
+  {/* NEW Button - Tags as 'qawwali' */}
+  <button 
+    onClick={() => onAddSong({ 
+      title, artist, coverUrl, audioUrl, category: 'qawwali' 
+    })}
+    className="w-full py-3 border-2 border-[#1ed760] text-[#1ed760] font-bold rounded-full hover:bg-[#1ed760] hover:text-black transition-all"
+  >
+    Upload as Qawwali (Other Songs Section)
+  </button>
+</div>
 
             {/* Success Toast Message */}
             {showSuccess && (
@@ -160,6 +220,15 @@ const AdminDashboard = ({ onAddSong, onBack }) => {
           </form>
         </div>
       </div>
+      <div className="mt-12 pt-8 border-t border-neutral-800">
+      <h3 className="text-red-500 font-bold mb-4">Danger Zone</h3>
+      <button 
+        onClick={handleRemoveDuplicates}
+        className="w-full py-3 bg-red-600/20 text-red-500 border border-red-600 font-bold rounded-full hover:bg-red-600 hover:text-white transition-all"
+      >
+        Clean Up Database (Remove Duplicates)
+      </button>
+    </div>
     </div>
   );
 };

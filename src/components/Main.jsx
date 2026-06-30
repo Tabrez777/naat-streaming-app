@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import RecentSongsSection from './RecenSongsSection';
 import OtherSongsSection from './OtherSongsSection';
 import ArtistSection from './ArtistSection';
-
-
-
 import { db } from '../firebase'; 
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
   
@@ -12,7 +9,8 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 const Main = ({ onPlay, songs, setSongs }) => { 
   const [loading, setLoading] = useState(true);
   const [artists, setArtists] = useState([]);
-
+  
+  const naats = songs.filter(song => song.category === "naat" || !song.category);
   useEffect(() => {
   const fetchArtists = async () => {
     const q = collection(db, "artists");
@@ -57,14 +55,16 @@ fetchSongs();
     <div className='scrollbar-hide w-full h-[85vh] text-white rounded-lg overflow-auto' style={{background:'transparent'}}>
         <RecentSongsSection 
         onPlay ={onPlay} 
-        songs = {songs}
+        songs = {naats}
         />
-        <OtherSongsSection/>
+        <OtherSongsSection
+        onPlay={onPlay}
+        songs={songs}/>
         <ArtistSection
         artists = {artists}
         />
     </div>
   );
-}; // <--- And this closing bracket!
+}; 
 
 export default Main;
