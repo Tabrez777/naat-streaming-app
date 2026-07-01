@@ -6,7 +6,7 @@ import { db } from '../firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
   
 
-const Main = ({ onPlay, songs, setSongs }) => { 
+const Main = ({ onPlay, songs, setSongs, onArtistClick }) => { 
   const [loading, setLoading] = useState(true);
   const [artists, setArtists] = useState([]);
   
@@ -62,7 +62,9 @@ fetchSongs();
         songs={songs}/>
         <ArtistSection
         artists = {artists}
+        onArtistClick={onArtistClick}
         />
+        
     </div>
   );
 }; 

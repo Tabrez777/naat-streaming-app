@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../firebase'; 
-import {deleteDoc,doc, collection, addDoc } from 'firebase/firestore';
+import { getDocs, getDoc, deleteDoc, doc, collection, addDoc } from 'firebase/firestore';
+
 
 const AdminDashboard = ({ onAddSong, onBack }) => {
   const [title, setTitle] = useState('');
@@ -60,28 +61,31 @@ const handleRemoveDuplicates = async () => {
     const seenTitles = new Set();
     let deleteCount = 0;
 
-    // Loop through every document in Firebase
     for (const document of querySnapshot.docs) {
       const songData = document.data();
-      const uniqueKey = `${songData.title}-${songData.category}`.toLowerCase();
+      
+      // ✨ FIX: Strip spaces and handle missing categories securely
+      const safeTitle = (songData.title || "Untitled").trim().toLowerCase();
+      const safeCategory = (songData.category || "naat").trim().toLowerCase();
+      
+      const uniqueKey = `${safeTitle}-${safeCategory}`;
 
       if (seenTitles.has(uniqueKey)) {
-        // If we've already seen this title, it's a duplicate. Delete it!
+        console.log(`Deleting duplicate: ${songData.title}`); // Helps you see what is being deleted
         await deleteDoc(doc(db, "songs", document.id));
         deleteCount++;
       } else {
-        // First time seeing it, save it to our Set
         seenTitles.add(uniqueKey);
       }
     }
 
     alert(`Cleanup complete! Deleted ${deleteCount} duplicate tracks.`);
-    window.location.reload(); // Refresh to update the UI
+    window.location.reload(); 
   } catch (error) {
     console.error("Error deleting duplicates:", error);
     alert("Failed to clean up database.");
   }
-}; 
+};
 
   const handleAddArtist = async (e) => {
     e.preventDefault();
@@ -178,19 +182,22 @@ const handleRemoveDuplicates = async () => {
 <div className="flex flex-col gap-4 mt-8">
   {/* Existing Button - Tags as 'naat' */}
   <button 
-    onClick={() => onAddSong({ 
-      title, artist, coverUrl, audioUrl, category: 'naat' 
-    })}
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      onAddSong({ title, artist, coverUrl, audioUrl, category: 'naat' });
+    }}
     className="w-full py-3 bg-[#1ed760] text-black font-bold rounded-full hover:scale-105 transition-transform"
   >
     Upload as Naat (Main Section)
   </button>
-
   {/* NEW Button - Tags as 'qawwali' */}
   <button 
-    onClick={() => onAddSong({ 
+    onClick={() => {
+      e.preventDefault();
+      onAddSong({ 
       title, artist, coverUrl, audioUrl, category: 'qawwali' 
-    })}
+    })}}
     className="w-full py-3 border-2 border-[#1ed760] text-[#1ed760] font-bold rounded-full hover:bg-[#1ed760] hover:text-black transition-all"
   >
     Upload as Qawwali (Other Songs Section)

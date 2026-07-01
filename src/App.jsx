@@ -6,6 +6,7 @@ import PlayPage from './components/PlayPage';
 import Sidebar from './components/Sidebar';
 import PlaylistView from './components/PlaylistView';
 import AdminDashboard from './components/AdminDashboard';
+import ArtistView from './components/ArtistView';
 
 // ✨ STEP 1: Import Firebase configurations
 import { db } from './firebase'; 
@@ -23,7 +24,7 @@ function App() {
   const [loading, setLoading] = useState(true); // Prevents flash of logged-out state
   const [showAdmin, setShowAdmin] = useState(false);
   const [songs, setSongs] = useState([]);
-
+  const [selectedArtist, setSelectedArtist] = useState(null);
   // --- AUDIO MASTER STATE ---
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -38,7 +39,7 @@ function App() {
     // ✨ NEW: Check if this exact song title already exists in the same category
     const isDuplicate = songs.some(
       (song) => 
-        song.title.toLowerCase() === newSongData.title.toLowerCase() && 
+        song.title?.trim().toLowerCase() === newSongData.title?.trim().toLowerCase() && 
         song.category === newSongData.category
     );
 
@@ -342,11 +343,8 @@ function App() {
 
             {/* DYNAMIC CONTENT AREA: Show Playlist if clicked, otherwise show Main Dashboard */}
             <div className='flex-1 w-full overflow-hidden relative'>
-                      {(showAdmin && user?.email === "mdtaffique@gmail.com") ? (
-              <AdminDashboard 
-                onAddSong={handleAddNewSong} 
-                onBack={() => setShowAdmin(false)} 
-              />
+            {(showAdmin && user?.email === "mdtaffique@gmail.com") ? (
+              <AdminDashboard onAddSong={handleAddNewSong} onBack={() => setShowAdmin(false)} />
             ) : selectedPlaylist ? (
               <PlaylistView 
                 playlist={playlists.find(p => p.id === selectedPlaylist.id)} 
@@ -354,13 +352,24 @@ function App() {
                 onBack={() => setSelectedPlaylist(null)}
                 onUnlike={handleUnlikeNaat}
               />
+            ) : selectedArtist ? (
+              // ✨ NEW: If an artist is selected, show their page!
+              <ArtistView 
+                artist={selectedArtist}
+                songs={songs} 
+                onPlay={(naat) => setCurrentNaat(naat)}
+                onBack={() => setSelectedArtist(null)} 
+              />
             ) : (
               <Main 
-              onPlay={(naat) => setCurrentNaat(naat)}
-              songs = {songs}
-              setSongs = {setSongs} />
+                onPlay={(naat) => setCurrentNaat(naat)}
+                songs={songs}
+                setSongs={setSongs}
+                // ✨ NEW: Pass the click handler down to Main
+                onArtistClick={(artist) => setSelectedArtist(artist)} 
+              />
             )}
-          </div>              
+          </div>             
           </div>
         </>
       )}

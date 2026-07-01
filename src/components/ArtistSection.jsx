@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'; // ✨ 1. Added useRef here
 
-const ArtistSection = ({ artists }) => {
+const ArtistSection = ({ artists,onArtistClick }) => {
   const scrollRef = useRef(null);
 
   const scroll = (direction) => {
@@ -54,7 +54,9 @@ const ArtistSection = ({ artists }) => {
       {/* Scrollable Container */}
       <div ref={scrollRef} className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth">
         {artists.map((artist) => (
-          <div key={artist.id} className="group shrink-0 w-40 cursor-pointer flex flex-col items-center">
+          <div key={artist.id}
+          onClick={() => onArtistClick(artist)}
+           className="group shrink-0 w-40 cursor-pointer flex flex-col items-center">
             <div className="w-full aspect-square rounded-full overflow-hidden mb-4 shadow-md transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-2">
               <img src={artist.imageUrl} alt={artist.name} className="w-full h-full object-cover" />
             </div>
