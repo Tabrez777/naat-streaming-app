@@ -57,25 +57,35 @@ const RecentSongsSection = ({ songs, onPlay }) => {
       </div> {/* ✨ THIS DIV CLOSES HERE NOW ✨ */}
 
       {/* 2. LEFT Scroll Button (Moved outside the scrolling div) */}
-      <button 
-        onClick={() => scroll('left')} 
-        className="absolute left-10 top-1/2 transform -translate-y-1/2 
-                   bg-black/30 backdrop-blur-md border cursor-pointer border-white/10 
-                   text-white p-4 rounded-full shadow-2xl 
-                   hover:bg-black/50 hover:scale-110 transition-all z-20"
-      >
-        <img width={20} src="icons/arrow-left.png" alt="Scroll Left" />
+      <button onClick={() => scroll('left')} className="absolute cursor-pointer left-10 top-1/2 bg-black/30 backdrop-blur-md p-3 rounded-full text-white z-20">
+        <svg 
+  width="20" 
+  height="20" 
+  viewBox="0 0 24 24" 
+  fill="none" 
+  stroke="white" 
+  strokeWidth="2" 
+  strokeLinecap="round" 
+  strokeLinejoin="round"
+>
+  <path d="M15 18l-6-6 6-6"/>
+</svg>
       </button>
 
       {/* 3. RIGHT Scroll Button (Moved outside the scrolling div) */}
-      <button 
-        onClick={() => scroll('right')} 
-        className="absolute right-10 top-1/2 transform -translate-y-1/2 
-                   bg-black/30 backdrop-blur-md border cursor-pointer border-white/10 
-                   text-white p-4 rounded-full shadow-2xl 
-                   hover:bg-black/50 hover:scale-110 transition-all z-20"
-      >
-        <img width={20} src="icons/arrow-right.png" alt="Scroll Right" />
+      <button onClick={() => scroll('right')} className="absolute cursor-pointer right-10 top-1/2 bg-black/30 backdrop-blur-md p-3 rounded-full text-white z-20">
+        <svg 
+    width="20" 
+    height="20" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="white" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+  >
+    <path d="M9 18l6-6-6-6"/>
+  </svg>
       </button>
 
     </div>

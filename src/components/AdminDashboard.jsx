@@ -193,7 +193,7 @@ const handleRemoveDuplicates = async () => {
   </button>
   {/* NEW Button - Tags as 'qawwali' */}
   <button 
-    onClick={() => {
+    onClick={(e) => {
       e.preventDefault();
       onAddSong({ 
       title, artist, coverUrl, audioUrl, category: 'qawwali' 
@@ -201,6 +201,17 @@ const handleRemoveDuplicates = async () => {
     className="w-full py-3 border-2 border-[#1ed760] text-[#1ed760] font-bold rounded-full hover:bg-[#1ed760] hover:text-black transition-all"
   >
     Upload as Qawwali (Other Songs Section)
+  </button>
+  <button 
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      // Notice the category is now 'tilawat'
+      onAddSong({ title, artist, coverUrl, audioUrl, category: 'tilawat' });
+    }}
+    className="w-full py-3 border-2 border-white text-white font-bold rounded-full hover:bg-white hover:text-black transition-all"
+  >
+    Upload as Quran Tilawat
   </button>
 </div>
 

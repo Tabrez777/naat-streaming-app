@@ -1,13 +1,12 @@
 import React, { useRef } from 'react';
 
-const OtherSongsSection = ({ onPlay, songs = [] }) => {
-  // 1. Setup the scroll reference and function
+const QuranTilawatSection = ({ onPlay, songs = [] }) => {
   const scrollRef = useRef(null);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
       const { current } = scrollRef;
-      const scrollAmount = 300; // Adjust this to change how far it scrolls
+      const scrollAmount = 300;
       current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
@@ -15,24 +14,25 @@ const OtherSongsSection = ({ onPlay, songs = [] }) => {
     }
   };
 
-  // 2. Filter for Qawwalis only
-  const qawwalis = songs.filter(song => song.category === 'qawwali');
+  // ✨ FILTER: Only keep tracks tagged as 'tilawat'
+  const tilawats = songs.filter(song => song.category === 'tilawat');
 
-  if (qawwalis.length === 0) return null;
+  // Hide the section if no Tilawat is uploaded yet
+  if (tilawats.length === 0) return null;
 
   return (
     <div className="p-6 relative group font-sans">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-white text-2xl font-bold">Recently Added Qawwalis</h2>
+        <h2 className="text-white text-2xl font-bold">Quran Tilawat</h2>
       </div>
       
       {/* Scrollable Container */}
       <div 
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth"
+        className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {qawwalis.map((song) => (
+        {tilawats.map((song) => (
           <div 
             key={song.id} 
             onClick={() => onPlay(song)}
@@ -54,9 +54,10 @@ const OtherSongsSection = ({ onPlay, songs = [] }) => {
             <p className="text-neutral-400 text-sm truncate mt-1">{song.artist}</p>
           </div>
         ))}
+      </div>
 
-        {/* LEFT Scroll Button (Fixed to say 'left' instead of 'right') */}
-        <button onClick={() => scroll('left')} className="absolute cursor-pointer left-10 top-1/2 bg-black/30 backdrop-blur-md p-3 rounded-full text-white z-20">
+      {/* LEFT Scroll Button */}
+      <button onClick={() => scroll('left')} className="absolute cursor-pointer left-10 top-1/2 bg-black/30 backdrop-blur-md p-3 rounded-full text-white z-20">
         <svg 
   width="20" 
   height="20" 
@@ -86,9 +87,8 @@ const OtherSongsSection = ({ onPlay, songs = [] }) => {
     <path d="M9 18l6-6-6-6"/>
   </svg>
       </button>
-      </div>
     </div>
   );
 };
 
-export default OtherSongsSection;
+export default QuranTilawatSection;

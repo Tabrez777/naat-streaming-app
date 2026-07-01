@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import RecentSongsSection from './RecenSongsSection';
 import OtherSongsSection from './OtherSongsSection';
 import ArtistSection from './ArtistSection';
+import QuranTilawatSection from './QuranTilawatSection';
 import { db } from '../firebase'; 
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
   
@@ -60,6 +61,10 @@ fetchSongs();
         <OtherSongsSection
         onPlay={onPlay}
         songs={songs}/>
+        <QuranTilawatSection
+        onPlay={onPlay}
+        songs={songs} 
+          />
         <ArtistSection
         artists = {artists}
         onArtistClick={onArtistClick}
