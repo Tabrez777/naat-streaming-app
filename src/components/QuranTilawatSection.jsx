@@ -16,9 +16,10 @@ const QuranTilawatSection = ({ onPlay, songs = [] }) => {
 
   // ✨ FILTER: Only keep tracks tagged as 'tilawat'
   const tilawats = songs.filter(song => song.category === 'tilawat');
+  const sortedTilawats = [...tilawats].reverse();
 
   // Hide the section if no Tilawat is uploaded yet
-  if (tilawats.length === 0) return null;
+  if (sortedTilawats.length === 0) return null;
 
   return (
     <div className="p-6 relative group font-sans">
@@ -32,7 +33,7 @@ const QuranTilawatSection = ({ onPlay, songs = [] }) => {
         className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {tilawats.map((song) => (
+        {sortedTilawats.map((song) => (
           <div 
             key={song.id} 
             onClick={() => onPlay(song)}

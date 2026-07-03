@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 import PlaylistView from './components/PlaylistView';
 import AdminDashboard from './components/AdminDashboard';
 import ArtistView from './components/ArtistView';
+import SettingsView from './components/SettingsView';
 
 // ✨ STEP 1: Import Firebase configurations
 import { db } from './firebase'; 
@@ -20,7 +21,9 @@ function App() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null); // Will now hold the complete user object from Firebase
+  const [user, setUser] = useState(null);// Will now hold the complete user object from Firebase
+  const [activeTab, setActiveTab] = useState('Home')
+  
   const [loading, setLoading] = useState(true); // Prevents flash of logged-out state
   const [showAdmin, setShowAdmin] = useState(false);
   const [songs, setSongs] = useState([]);
@@ -33,6 +36,10 @@ function App() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const previousVolume = useRef(1);
+  const [userProfile, setUserProfile] = useState({
+  name: "Taffique",
+  avatarUrl: "" // Leave empty or put a default image URL here
+});
 
   const handleAddNewSong = async (newSongData) => {
   try {
@@ -324,7 +331,8 @@ function App() {
           <Navbar
             user={user}
             onLogin={handleLogin}    // ✨ Uses newly defined auth bridge setup
-            onLogout={handleLogout}  // ✨ Handles session state resets
+            onLogout={handleLogout}  
+            userProfile = {userProfile}
             toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
             onAdminClick = {() => setShowAdmin(true)}
              
@@ -336,6 +344,8 @@ function App() {
               onClose={() => setIsSidebarOpen(false)}
               playlists={playlists}
               setPlaylists={setPlaylists}
+              activeTab ={activeTab}
+              setActiveTab = {setActiveTab}
               onPlaylistSelect={(playlist) => setSelectedPlaylist(playlist)} 
             />
             
@@ -343,7 +353,13 @@ function App() {
 
             {/* DYNAMIC CONTENT AREA: Show Playlist if clicked, otherwise show Main Dashboard */}
             <div className='flex-1 w-full overflow-hidden relative'>
-            {(showAdmin && user?.email === "mdtaffique@gmail.com") ? (
+            { activeTab === 'Settings' ? (
+              <SettingsView
+              userProfile ={userProfile}
+              onUpdateProfile = {setUserProfile}
+              />
+            ):
+            (showAdmin && user?.email === "mdtaffique@gmail.com") ? (
               <AdminDashboard onAddSong={handleAddNewSong} onBack={() => setShowAdmin(false)} />
             ) : selectedPlaylist ? (
               <PlaylistView 

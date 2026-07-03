@@ -5,7 +5,7 @@ import Account from './Account';         // [cite: 2]
 import SearchBar from './SearchBar';     // [cite: 2]
 import { useNavigation } from '../hooks/useNavigation'; // [cite: 3]
 
-const Navbar = ({ user, onLogin, onLogout, toggleSidebar,onAdminClick }) => {
+const Navbar = ({ user, onLogin, onLogout, toggleSidebar,onAdminClick,userProfile }) => {
   
   // Clean routing system tracking the URL paths [cite: 7]
   const [currentPath, navigateTo] = useNavigation();
@@ -55,16 +55,25 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar,onAdminClick }) => {
 
         {/* DYNAMIC PROFILE ICON CONTROLLER */}
         <button 
-          onClick={() => navigateTo(user ? '/account' : '/login')} // ✨ Fixed: Explicitly changes the browser URL path
+          onClick={() => navigateTo(user ? '/account' : '/login')}
           className="focus:outline-none transition transform hover:scale-105"
         >
           {user ? (
-            // Logged In Status [cite: 14]
-            <div className="w-9 h-9 bg-[#1ed760] text-black rounded-full flex items-center justify-center font-bold text-sm">
-              {user.username ? user.username[0].toUpperCase() : 'U'}
-            </div>
+            /* ✨ FIXED: Check for the uploaded image first! */
+            userProfile?.avatarUrl ? (
+              <img 
+                src={userProfile.avatarUrl} 
+                alt="Profile" 
+                className="w-9 h-9 rounded-full object-cover border border-neutral-700"
+              />
+            ) : (
+              /* Fallback: Show the green circle with their initial if no image exists */
+              <div className="w-9 h-9 bg-[#1ed760] text-black rounded-full flex items-center justify-center font-bold text-sm">
+                {userProfile?.name ? userProfile.name[0].toUpperCase() : (user.username ? user.username[0].toUpperCase() : 'U')}
+              </div>
+            )
           ) : (
-            // Logged Out Status [cite: 14, 15]
+            // Logged Out Status 
             <div className="w-9 h-9 bg-neutral-800 text-neutral-400 rounded-full flex items-center justify-center border border-neutral-700 hover:text-white hover:border-neutral-500">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
