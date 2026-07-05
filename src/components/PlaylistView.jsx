@@ -1,12 +1,26 @@
-import React from 'react';
+import React,{useMemo} from 'react';
 
-const PlaylistView = ({ playlist, onPlay, onBack,onUnlike }) => {
+const PlaylistView = ({ playlist, onPlay, onBack, onUnlike }) => {
   // If no playlist is selected, don't render anything
   if (!playlist) return null;
 
   const songs = playlist.songs || [];
+
+  const randomCoverUrl = useMemo(() => {
+    if (songs.length === 0) return null; // If empty, return null
+    const randomIndex = Math.floor(Math.random() * songs.length);
+    return songs[randomIndex].coverUrl;
+  }, [songs]);
+  
   const handleDownloadPlaylist = () => {
     alert("Downloading a full playlist will require zipping multiple files! You can hook this up to your download logic later.");
+  };
+
+  // ✨ NEW: Shuffle logic to pick a random track from this playlist
+  const handleShufflePlay = () => {
+    if (songs.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * songs.length);
+    onPlay(songs[randomIndex]);
   };
 
   const calculateTotalTime = (songsArray) => {
@@ -40,8 +54,18 @@ const PlaylistView = ({ playlist, onPlay, onBack,onUnlike }) => {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         </button>
         
-        <div className=" w-24 h-24 md:w-40 md:h-40 bg-neutral-700 rounded-xl shadow-2xl flex items-center justify-center shrink-0">
-          <svg className="w-16 h-16 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+        <div className="w-24 h-24 md:w-40 md:h-40 bg-neutral-800 rounded-xl shadow-2xl flex items-center justify-center shrink-0 overflow-hidden">
+          {randomCoverUrl ? (
+            <img 
+              src={randomCoverUrl} 
+              alt="Playlist Cover" 
+              className="w-full h-full object-cover shadow-lg"
+            />
+          ) : (
+            <svg className="w-16 h-16 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+            </svg>
+          )}
         </div>
         
         <div>
@@ -50,20 +74,37 @@ const PlaylistView = ({ playlist, onPlay, onBack,onUnlike }) => {
           <p className="text-neutral-400 py-2 text-sm">{songs.length} Naats  {calculateTotalTime(songs)} </p>
 
           <div className='flex items-center gap-4'>
+            {/* Standard Play Button */}
             <button
-            onClick={() => songs.length > 0 && onPlay(songs[0])}
-            className="w-10 h-10 bg-[#1ed760] text-black cursor-pointer rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#1fdf64] transition-all shadow-lg"
-              title="Play Playlist">
+              onClick={() => songs.length > 0 && onPlay(songs[0])}
+              className="w-10 h-10 bg-[#1ed760] text-black cursor-pointer rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#1fdf64] transition-all shadow-lg"
+              title="Play Playlist"
+            >
               <svg className="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </button>
+            
+            {/* Download Button */}
             <button
-            onClick={handleDownloadPlaylist}
-            className="w-10 h-10 border-2 border-neutral-500 text-neutral-400 cursor-pointer rounded-full flex items-center justify-center hover:border-white hover:text-white transition-colors"
+              onClick={handleDownloadPlaylist}
+              className="w-10 h-10 border-2 border-neutral-500 text-neutral-400 cursor-pointer rounded-full flex items-center justify-center hover:border-white hover:text-white transition-colors"
               title="Download Playlist"
-            ><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg></button>
-            </div>
+              </svg>
+            </button>
+
+            {/* ✨ NEW: Shuffle Button */}
+            <button
+              onClick={handleShufflePlay}
+              className="w-10 h-10 border-2 border-neutral-500 text-neutral-400 cursor-pointer rounded-full flex items-center justify-center hover:border-white hover:text-[#1ed760] hover:border-[#1ed760] transition-colors"
+              title="Shuffle Playlist"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -84,19 +125,20 @@ const PlaylistView = ({ playlist, onPlay, onBack,onUnlike }) => {
               <span className="text-neutral-500 w-4 text-right">{index + 1}</span>
               <img src={song.coverUrl} alt="cover" className="w-10 h-10 rounded bg-neutral-700 object-cover" />
               <div className="flex flex-col flex-1">
-                <span className="font-semibold text-white group-hover:text-green-500 transition-colors">{song.title}</span>
+                <span className="font-semibold text-white group-hover:text-[#1ed760] transition-colors">{song.title}</span>
                 <span className="text-sm text-neutral-400">{song.artist}</span>
               </div>
               <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                onUnlike(song)} }
-              className="opacity-0 group-hover:opacity-100 text-neutral-400 hover:text-red-500 p-2 transition-all"
-            >
-              <svg className="w-5 h-5 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUnlike(song)} 
+                }
+                className="opacity-0 group-hover:opacity-100 text-neutral-400 hover:text-red-500 p-2 transition-all"
+              >
+                <svg className="w-5 h-5 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
               <div className="text-neutral-400 text-sm font-medium mr-4">
                 {formatSongTime(song.duration)}
               </div>

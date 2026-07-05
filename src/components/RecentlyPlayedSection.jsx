@@ -1,8 +1,7 @@
 import React, { useRef, useState } from 'react';
 
-const QuranTilawatSection = ({ onPlay, songs = [] }) => {
+const RecentlyPlayedSection = ({ onPlay, recentlyPlayed = [] }) => {
   const scrollRef = useRef(null);
-
   const [showAll, setShowAll] = useState(false);
 
   const scroll = (direction) => {
@@ -16,23 +15,20 @@ const QuranTilawatSection = ({ onPlay, songs = [] }) => {
     }
   };
 
-  // ✨ FILTER: Only keep tracks tagged as 'tilawat'
-  const tilawats = songs.filter(song => song.category === 'tilawat');
-  const sortedTilawats = [...tilawats].reverse();
+  // ✨ If they haven't played anything yet, hide this entire section
+  if (recentlyPlayed.length === 0) return null;
 
-  // Hide the section if no Tilawat is uploaded yet
-  if (sortedTilawats.length === 0) return null;
-
-  const displayedSongs = showAll ? sortedTilawats : sortedTilawats.slice(0, 7);
+  const displayedSongs = showAll ? recentlyPlayed : recentlyPlayed.slice(0, 7);
 
   return (
     <div className="p-6 relative group font-sans">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-white text-2xl font-bold">Quran Tilawat</h2>
-        {songs.length > 7 && (
+        <h2 className="text-white text-2xl font-bold">Recently Played</h2>
+        
+        {recentlyPlayed.length > 7 && (
           <button 
             onClick={() => setShowAll(!showAll)}
-            className="text-sm font-bold cursor-pointer text-neutral-400 hover:text-white transition-colors tracking-wider uppercase"
+            className="text-sm font-bold cursor-pointer text-[#1ed760] hover:text-white transition-colors tracking-wider uppercase"
           >
             {showAll ? 'Show Less' : 'Show All'}
           </button>
@@ -69,39 +65,15 @@ const QuranTilawatSection = ({ onPlay, songs = [] }) => {
         ))}
       </div>
 
-      {/* LEFT Scroll Button */}
       <button onClick={() => scroll('left')} className="absolute cursor-pointer left-10 top-1/2 bg-black/30 backdrop-blur-md p-3 rounded-full text-white z-20">
-        <svg 
-  width="20" 
-  height="20" 
-  viewBox="0 0 24 24" 
-  fill="none" 
-  stroke="white" 
-  strokeWidth="2" 
-  strokeLinecap="round" 
-  strokeLinejoin="round"
->
-  <path d="M15 18l-6-6 6-6"/>
-</svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       </button>
 
-      {/* 3. RIGHT Scroll Button (Moved outside the scrolling div) */}
       <button onClick={() => scroll('right')} className="absolute cursor-pointer right-10 top-1/2 bg-black/30 backdrop-blur-md p-3 rounded-full text-white z-20">
-        <svg 
-    width="20" 
-    height="20" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="white" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-  >
-    <path d="M9 18l6-6-6-6"/>
-  </svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </button>
     </div>
   );
 };
 
-export default QuranTilawatSection;
+export default RecentlyPlayedSection;

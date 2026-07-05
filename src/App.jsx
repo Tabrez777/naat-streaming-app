@@ -35,11 +35,32 @@ function App() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [isRepeating, setIsRepeating] = useState(false);
   const previousVolume = useRef(1);
   const [userProfile, setUserProfile] = useState({
   name: "Taffique",
   avatarUrl: "" // Leave empty or put a default image URL here
 });
+
+
+ const [recentlyPlayed, setRecentlyPlayed] = useState(() => {
+    const saved = localStorage.getItem('recentlyPlayed');
+    
+    if (saved) {
+      const parsedData = JSON.parse(saved);
+      // Filter out any ghost tracks, nulls, or tracks missing a cover image!
+      const cleanData = parsedData.filter(song => song !== null && song.id && song.coverUrl);
+      
+      // Update local storage to permanently remove the bad data
+      localStorage.setItem('recentlyPlayed', JSON.stringify(cleanData));
+      
+      return cleanData;
+    }
+    
+    return [];
+  });
+
+  const toggleRepeat = () => setIsRepeating(!isRepeating);
 
   const handleAddNewSong = async (newSongData) => {
   try {
@@ -120,14 +141,35 @@ function App() {
   }, []);
 
   // Auto-play when a new Naat is selected from anywhere in the app
+  // Auto-play when a new Naat is selected from anywhere in the app
   useEffect(() => {
+    
+    // ✨ THE FIX: We put EVERYTHING inside this safety check!
+    // Now it will only try to track history and play if a song is actually selected.
     if (currentNaat && audioRef.current) {
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch(e => {
-          console.error("Playback blocked:", e);
-          setIsPlaying(false);
-        });
+      
+      // 1. Update Recently Played History
+      setRecentlyPlayed( prev => {
+        const filtered = prev.filter(song => song.id !== currentNaat.id);
+        const updated = [currentNaat, ...filtered].slice(0, 15);
+        localStorage.setItem('recentlyPlayed', JSON.stringify(updated));
+        return updated;
+      });
+
+      // 2. Play the track
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch(error => {
+            if (error.name === "AbortError") {
+              console.log("Track changed before the previous one could load.");
+            } else {
+              console.error("Playback blocked:", error);
+              setIsPlaying(false);
+            }
+          });
+      }
     }
   }, [currentNaat]);
 
@@ -170,7 +212,7 @@ function App() {
   const audioProps = {
     isPlaying, togglePlay, 
     currentTime, duration, handleSeek, 
-    volume, isMuted, handleVolumeChange, toggleMute
+    volume, isMuted, handleVolumeChange, toggleMute,toggleRepeat,isRepeating
   };
 
   // ✨ STEP 3: Handle User Sign-In & Sign-Out Events
@@ -236,19 +278,57 @@ function App() {
     );
   }
 
+  // ✨ NEW: Smart Queue Logic
+  // This function figures out exactly what list of songs the user is currently listening to!
+  // ✨ NEW: Smart Queue Logic
+  const getActiveQueue = () => {
+    // 1. If they are in a Playlist
+    if (selectedPlaylist) {
+      const playlist = playlists.find(p => p.id === selectedPlaylist.id);
+      return playlist?.songs || [];
+    }
+    
+    // 2. If they are in an Artist profile
+    if (selectedArtist) {
+      return songs.filter(s => s.artist === selectedArtist.name);
+    }
+    
+    // 3. Category Locking (Dashboard)
+    if (currentNaat && currentNaat.category) {
+      const categorySongs = songs.filter(s => s.category === currentNaat.category);
+      
+      // ✨ THE FIX: If it's a Tilawat, reverse the queue to match the screen!
+      if (currentNaat.category === 'tilawat') {
+        return categorySongs.reverse();
+      }
+      
+      return categorySongs;
+    }
+    
+    // Fallback: Return all songs
+    return songs;
+  };
+
   const playNext = () => {
-    console.log("Available songs:", songs);
-    if(!currentNaat || songs.length === 0) return;
-    const currentIndex = songs.findIndex(s => s.id === currentNaat.id);
-    const nextIndex = (currentIndex + 1) % songs.length;
-    setCurrentNaat(songs[nextIndex]);
+    if (!currentNaat) return;
+    const queue = getActiveQueue(); // Grab the smart queue
+    if (queue.length === 0) return;
+
+    // Find where we are in the current queue, and go forward by 1
+    const currentIndex = queue.findIndex(s => s.id === currentNaat.id);
+    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % queue.length;
+    setCurrentNaat(queue[nextIndex]);
   };
 
   const playPrevious = () => {
-    if(!currentNaat || songs.length === 0) return;
-    const currentIndex = songs.findIndex(s => s.id === currentNaat.id);
-    const previousIndex = (currentIndex - 1 + songs.length) % songs.length;
-    setCurrentNaat(songs[previousIndex]);
+    if (!currentNaat) return;
+    const queue = getActiveQueue(); // Grab the smart queue
+    if (queue.length === 0) return;
+
+    // Find where we are in the current queue, and go backward by 1
+    const currentIndex = queue.findIndex(s => s.id === currentNaat.id);
+    const previousIndex = currentIndex === -1 ? 0 : (currentIndex - 1 + queue.length) % queue.length;
+    setCurrentNaat(queue[previousIndex]);
   };
 
   const handleLikeNaat = async (naat) => {
@@ -299,6 +379,8 @@ function App() {
 
   };
 
+  
+
   return (
     <div className="flex flex-col h-screen w-screen relative overflow-hidden bg-linear-to-b from-neutral-900 to-black">
       
@@ -306,7 +388,13 @@ function App() {
       <audio 
         ref={audioRef} 
         src={currentNaat?.audioUrl} 
-        onEnded={() => setIsPlaying(false)}
+        loop = {isRepeating}
+        onEnded={() => {
+          if (!isRepeating) {
+            // ✨ THE FIX: Instead of stopping, automatically trigger the next track!
+            playNext();
+          }
+        }}
         onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)}
         onLoadedMetadata={() => setDuration(audioRef.current.duration)}
       />
@@ -335,7 +423,8 @@ function App() {
             userProfile = {userProfile}
             toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
             onAdminClick = {() => setShowAdmin(true)}
-             
+             songs={songs}
+            onPlay={(naat) => setCurrentNaat(naat)}
           />
           <div className='flex w-full h-full overflow-hidden relative'>
             
@@ -383,6 +472,7 @@ function App() {
                 setSongs={setSongs}
                 // ✨ NEW: Pass the click handler down to Main
                 onArtistClick={(artist) => setSelectedArtist(artist)} 
+                recentlyPlayed = {recentlyPlayed}
               />
             )}
           </div>             
@@ -397,6 +487,8 @@ function App() {
         onExpand={() => setIsExpanded(true)} 
         playNext = {playNext}
         playPrevious = {playPrevious}
+        songs={songs}
+        onPlay={(naat) => setCurrentNaat(naat)}
         {...audioProps}
       />
       

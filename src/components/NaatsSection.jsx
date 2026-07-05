@@ -1,7 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef,useState } from 'react';
 
 const RecentSongsSection = ({ songs, onPlay }) => {
+
   const scrollRef = useRef(null);
+  
+  const [showAll, setShowAll] = useState(false);
 
   // Function to scroll left or right
   const scroll = (direction) => {
@@ -19,11 +22,20 @@ const RecentSongsSection = ({ songs, onPlay }) => {
     return <div className="p-6 text-neutral-400">Loading...</div>;
   }
 
+  const displayedSongs = showAll ? songs :songs.slice(0, 7);
+
   return (
     <div className="p-6 relative group">
       
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white">Recently Added</h2>
+        <h2 className="text-2xl font-bold text-white">Naat-e-Paak</h2>
+        {songs.length > 7 && (
+          <button
+          onClick={() => setShowAll(!showAll)}
+            className="text-sm font-bold cursor-pointer text-neutral-400 hover:text-white transition-colors tracking-wider uppercase">
+            {showAll ? 'Show Less' : 'Show All'}
+          </button>
+        )}
       </div>
       
       {/* 1. Scrollable Container */}
@@ -32,7 +44,7 @@ const RecentSongsSection = ({ songs, onPlay }) => {
         className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {songs.map((song) => (
+        {displayedSongs.map((song) => (
           <div 
             key={song.id} 
             onClick={() => onPlay(song)}

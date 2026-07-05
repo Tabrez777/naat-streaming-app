@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useRef,useState } from 'react';
 
 const OtherSongsSection = ({ onPlay, songs = [] }) => {
   // 1. Setup the scroll reference and function
   const scrollRef = useRef(null);
+  const [showAll, setShowAll] = useState(false);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -20,10 +21,20 @@ const OtherSongsSection = ({ onPlay, songs = [] }) => {
 
   if (qawwalis.length === 0) return null;
 
+  const displayedSongs = showAll ? qawwalis :qawwalis.slice(0, 7);
+
   return (
     <div className="p-6 relative group font-sans">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-white text-2xl font-bold">Recently Added Qawwalis</h2>
+        <h2 className="text-white text-2xl font-bold">Qawwalis</h2>
+        {songs.length > 7 && (
+          <button 
+            onClick={() => setShowAll(!showAll)}
+            className="text-sm font-bold cursor-pointer text-neutral-400 hover:text-white transition-colors tracking-wider uppercase"
+          >
+            {showAll ? 'Show Less' : 'Show All'}
+          </button>
+        )}
       </div>
       
       {/* Scrollable Container */}
@@ -32,7 +43,7 @@ const OtherSongsSection = ({ onPlay, songs = [] }) => {
         className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {qawwalis.map((song) => (
+        {displayedSongs.map((song) => (
           <div 
             key={song.id} 
             onClick={() => onPlay(song)}

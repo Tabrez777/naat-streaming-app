@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import RecentSongsSection from './RecenSongsSection';
-import OtherSongsSection from './OtherSongsSection';
+import NaatsSection from './NaatsSection';
+import QawwalisSection from './QawwalisSection';
 import ArtistSection from './ArtistSection';
 import QuranTilawatSection from './QuranTilawatSection';
+import Footer from './Footer';
+import RecentlyPlayedSection from './RecentlyPlayedSection';
 import { db } from '../firebase'; 
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
   
 
-const Main = ({ onPlay, songs, setSongs, onArtistClick }) => { 
+const Main = ({ onPlay, songs, setSongs, onArtistClick, recentlyPlayed }) => { 
   const [loading, setLoading] = useState(true);
   const [artists, setArtists] = useState([]);
   
@@ -54,11 +56,16 @@ fetchSongs();
   }// <--- This is the line that was likely missing!
   return (
     <div className='scrollbar-hide w-full h-[85vh] text-white rounded-lg overflow-auto' style={{background:'transparent'}}>
-        <RecentSongsSection 
+      <RecentlyPlayedSection
+      onPlay={onPlay}
+      recentlyPlayed={recentlyPlayed} 
+      />
+
+        <NaatsSection 
         onPlay ={onPlay} 
         songs = {naats}
         />
-        <OtherSongsSection
+        <QawwalisSection
         onPlay={onPlay}
         songs={songs}/>
         <QuranTilawatSection
@@ -69,6 +76,8 @@ fetchSongs();
         artists = {artists}
         onArtistClick={onArtistClick}
         />
+
+        <Footer/>
         
     </div>
   );
