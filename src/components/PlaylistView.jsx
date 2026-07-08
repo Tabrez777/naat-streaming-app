@@ -42,6 +42,17 @@ const PlaylistView = ({ playlist, onPlay, onBack, onUnlike }) => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  const formatPlayCount = (count) => {
+  // If the song doesn't have a play count yet, default to 0
+  if (!count) return "0"; 
+  
+  // The built-in JS formatter handles the 'k' and 'M' math automatically!
+  return Intl.NumberFormat('en-US', {
+    notation: "compact",
+    maximumFractionDigits: 1
+  }).format(count);
+};
+
   return (
     <div className="flex-1 bg-neutral-900 rounded-lg p-6 overflow-y-auto text-white">
       
@@ -126,7 +137,15 @@ const PlaylistView = ({ playlist, onPlay, onBack, onUnlike }) => {
               <img src={song.coverUrl} alt="cover" className="w-10 h-10 rounded bg-neutral-700 object-cover" />
               <div className="flex flex-col flex-1">
                 <span className="font-semibold text-white group-hover:text-[#1ed760] transition-colors">{song.title}</span>
+                <div className='flex'>
                 <span className="text-sm text-neutral-400">{song.artist}</span>
+                <span className="mx-2 text-neutral-600">•</span>
+                <span className="shrink-0 flex items-center gap-1">
+                    <svg className="w-3 h-3 text-neutral-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    {formatPlayCount(song.playCount)}
+                  </span></div>
               </div>
               <button 
                 onClick={(e) => {

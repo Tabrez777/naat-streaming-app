@@ -1,4 +1,6 @@
 import React, { useState,useRef } from 'react';
+import { useColor } from 'color-thief-react';
+
 
 const PlayPage = ({ 
   naat, 
@@ -17,6 +19,13 @@ const PlayPage = ({
   userPlaylists = [], 
   onSaveToPlaylist,toggleRepeat,isRepeating
 }) => {
+
+  const { data: dominantColor, loading } = useColor(naat?.coverUrl, 'hex', {
+    crossOrigin: 'anonymous',
+  });
+
+  const bgColor = loading || !dominantColor ? '#262626' : dominantColor;
+
   const likedPlaylist = userPlaylists.find(p => p.name === "Liked Music");
   const isLiked = likedPlaylist?.songs?.some(s => s.id === naat?.id);
 
@@ -78,7 +87,13 @@ const PlayPage = ({
   };
 
   return (
-    <div className="flex-1 w-full h-full bg-linear-to-b from-neutral-800 to-black p-4 md:p-12 relative flex flex-col overflow-y-auto">
+    <div 
+      className="flex-1 w-full h-full p-4 md:p-12 relative flex flex-col overflow-y-auto transition-colors duration-1000 ease-in-out"
+      style={{
+        // This creates a smooth fade from the album color at the top down to black at the bottom
+        background: `linear-gradient(to bottom, ${bgColor} 0%, #000000 80%)`
+      }}
+    >
       
       {/* 1. Top Navigation Bar */}
       <div className="pt-safe  flex justify-between items-center w-full mb-8 shrink-0">

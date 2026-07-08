@@ -11,7 +11,7 @@ import SettingsView from './components/SettingsView';
 
 // ✨ STEP 1: Import Firebase configurations
 import { db } from './firebase'; 
-import { doc, getDoc, updateDoc, collection, addDoc, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, addDoc, getDocs, increment, query, orderBy, limit } from 'firebase/firestore';
 import { updatePassword } from 'firebase/auth';
 
 function App() {
@@ -41,6 +41,7 @@ function App() {
   name: "Taffique",
   avatarUrl: "" // Leave empty or put a default image URL here
 });
+const [trendingSongs, setTrendingSongs] = useState([]);
 
 
  const [recentlyPlayed, setRecentlyPlayed] = useState(() => {
@@ -81,6 +82,7 @@ function App() {
     // 1. Add to Firebase
     const docRef = await addDoc(songsCollectionRef, {
       ...newSongData,
+      playCount : 0,
       createdAt: new Date(),
     });
     
@@ -97,21 +99,54 @@ function App() {
 };
 
   useEffect(() => {
-  const fetchSongs = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "songs"));
-      const songsList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setSongs(songsList); // Update the state we created earlier
-    } catch (error) {
-      console.error("Error fetching songs:", error);
+    const fetchMusicData = async () => {
+      try {
+        // 1. Fetch ALL songs (your existing logic)
+        const allSnapshot = await getDocs(collection(db, "songs"));
+        const songsList = allSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setSongs(songsList);
+
+        // 2. ✨ NEW: Fetch only the Top 10 Trending songs
+        // This queries the same collection, but sorts by highest playCount and grabs the top 10
+        const trendingQuery = query(collection(db, "songs"), orderBy("playCount", "desc"), limit(10));
+        const trendingSnapshot = await getDocs(trendingQuery);
+        const trendingList = trendingSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTrendingSongs(trendingList);
+
+      } catch (error) {
+        console.error("Error fetching music data:", error);
+      }
+    };
+    
+    fetchMusicData();
+  }, []);
+
+// ✨ NEW: The 30-Second Play Count Tracker
+  useEffect(() => {
+    let playTimer;
+
+    // Only start the timer if a track is actually playing
+    if (isPlaying && currentNaat) {
+      playTimer = setTimeout(async () => {
+        try {
+          const trackRef = doc(db, "songs", currentNaat.id);
+          
+          // Tell Firebase to safely add 1 to the current playCount
+          await updateDoc(trackRef, {
+            playCount: increment(1)
+          });
+          
+          console.log(`Registered 1 valid play for: ${currentNaat.title}`);
+        } catch (error) {
+          console.error("Failed to update play count:", error);
+        }
+      }, 30000); // 30,000 milliseconds = 30 seconds
     }
-  };
-  
-  fetchSongs();
-}, []);
+
+    // CLEANUP: If the track changes, pauses, or skips BEFORE 30s, cancel the timer!
+    return () => clearTimeout(playTimer);
+  }, [currentNaat, isPlaying]);
+
 
   // ✨ STEP 2: Persistent Auto-Login System
   // Checks localStorage on app startup and fetches all matching records from Firestore
@@ -473,6 +508,7 @@ function App() {
                 // ✨ NEW: Pass the click handler down to Main
                 onArtistClick={(artist) => setSelectedArtist(artist)} 
                 recentlyPlayed = {recentlyPlayed}
+                trendingSongs = {trendingSongs}
               />
             )}
           </div>             
