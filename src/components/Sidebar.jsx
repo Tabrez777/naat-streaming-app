@@ -1,24 +1,23 @@
-import React, { useState } from 'react';
+// ✨ FIXED 1: Added useEffect to the import
+import React, { useState, useEffect } from 'react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
-// 1. FIX: Added onPlaylistSelect to the props here so it can be used!
-const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, setActiveTab,  isOpen, onClose }) => {
+// ✨ FIXED 2: Added 'user' to the props list here
+const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, setActiveTab, isOpen, onClose, user }) => {
   
-  // State to toggle the input field
   const [isCreating, setIsCreating] = useState(false);
-  
-  // State for the new playlist input text
   const [newPlaylistName, setNewPlaylistName] = useState("");
 
-  // Handle creating a new playlist on Enter
   const handleSavePlaylist = (e) => {
     if (e.key === 'Enter' && newPlaylistName.trim() !== "") {
       const newPlaylist = {
         id: Date.now(),
         name: newPlaylistName,
         trackCount: 0,
-        songs: [], // Crucial: Start with an empty array for songs
+        songs: [],
       };
-      setPlaylists([newPlaylist, ...playlists]); // Add to top of custom playlists
+      setPlaylists([newPlaylist, ...playlists]); 
       setNewPlaylistName("");
       setIsCreating(false);
     }
@@ -27,6 +26,108 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
       setNewPlaylistName("");
     }
   };
+  
+  const [contextMenu, setContextMenu] = useState({
+    visible : false,
+    x : 0,
+    y : 0,
+    playlist : null
+  });
+
+  const [renameModal, setRenameModal] = useState({
+    isOpen: false,
+    playlistId: null,
+    newName: ""
+  });
+
+  useEffect(() => {
+    const handleClickOutside = () => setContextMenu({...contextMenu,visible:false});
+    document.addEventListener("click",handleClickOutside);
+    return () => {
+      document.removeEventListener("click",handleClickOutside);
+    }
+  }, [contextMenu]);
+
+  const handleRightClick = (e, playlist) => {
+    e.preventDefault(); 
+    
+    let safeX = e.clientX;
+    let safeY = e.clientY;
+    
+    // SMART FLIP: If clicked near the right edge, shift left
+    if (e.clientX > window.innerWidth - 200) {
+      safeX = e.clientX - 200;
+    }
+    
+    // AGGRESSIVE FLIP: If clicked in the bottom 250px (near Playbar), force it UP!
+    if (e.clientY > window.innerHeight - 250) {
+      safeY = e.clientY - 180; // 180px pushes it safely above the cursor
+    }
+    
+    setContextMenu({
+      visible: true,
+      x: safeX,
+      y: safeY,
+      playlist: playlist
+    });
+  };
+
+  const syncToFirebase = async (updatedPlaylists) => {
+    setPlaylists(updatedPlaylists);
+    if (user?.uid) {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { playlists: updatedPlaylists });
+    }
+  };
+
+  const handlePin = () => {
+    const updated = playlists.map(p => 
+      p.id === contextMenu.playlist.id ? { ...p, isPinned: !p.isPinned } : p
+    );
+    syncToFirebase(updated);
+  };
+
+  // 1. Opens the custom modal instead of the browser prompt
+  const handleRename = () => {
+    setRenameModal({
+      isOpen: true,
+      playlistId: contextMenu.playlist.id,
+      newName: contextMenu.playlist.name
+    });
+    // Hide the context menu so it's not floating behind the modal
+    setContextMenu({ ...contextMenu, visible: false }); 
+  };
+
+  // 2. Saves the new name to Firebase when the user clicks "Save"
+  const submitRename = () => {
+    if (!renameModal.newName || renameModal.newName.trim() === "") {
+      setRenameModal({ isOpen: false, playlistId: null, newName: "" });
+      return;
+    }
+    
+    const updated = playlists.map(p => 
+      p.id === renameModal.playlistId ? { ...p, name: renameModal.newName } : p
+    );
+    syncToFirebase(updated);
+    
+    // Close the modal
+    setRenameModal({ isOpen: false, playlistId: null, newName: "" });
+  };
+
+  const handleDelete = () => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete "${contextMenu.playlist.name}"?`);
+    if (!confirmDelete) return;
+
+    const updated = playlists.filter(p => p.id !== contextMenu.playlist.id);
+    syncToFirebase(updated);
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(`https://tez-music-app.web.app/playlist/${contextMenu.playlist.id}`);
+    alert("Playlist link copied to clipboard!");
+  };
+
+  const sortedPlaylists = [...playlists].sort((a, b) => (b.isPinned === true) - (a.isPinned === true));
 
   return (
     <aside className={`w-64 h-screen text-white flex flex-col pt-3 pb-6 px-4 select-none border-r border-neutral-900 fixed md:static top-0 left-0 z-40 transition-transform duration-300 ease-in-out bg-linear-to-b from-neutral-900 to-black ${
@@ -62,7 +163,7 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
         <button 
           onClick={() => {
             setActiveTab("Home");
-            onPlaylistSelect(null); // Optional: Click Home to go back to Main dashboard
+            onPlaylistSelect(null); 
           }}
           className={`flex cursor-pointer items-center gap-6 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 ${
             activeTab === 'Home' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-300 hover:bg-neutral-900'
@@ -76,7 +177,7 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
         <button 
           onClick={() => setActiveTab('Settings')}
           className={`flex cursor-pointer items-center gap-6 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 ${
-            activeTab === 'Home' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-300 hover:bg-neutral-900'
+            activeTab === 'Settings' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-300 hover:bg-neutral-900'
           }`}
         >
           <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
@@ -86,10 +187,8 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
         </button>
       </div>
 
-      {/* ➖ Divider Line */}
       <hr className="border-neutral-800 my-2 mx-2" />
 
-      {/* ➕ New Playlist Pill Button */}
       <div className="px-2 py-2">
         {!isCreating ? (
           <button 
@@ -115,38 +214,85 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
         )}
       </div>
 
-      {/* 📜 Auto Playlists Container */}
       <div className="flex-1 overflow-y-auto px-2 flex flex-col gap-4 mt-3 scrollbar-none">
         
-        {/* Liked Music */}
-        <div className="flex flex-col cursor-pointer group">
-          <span className="text-sm font-medium text-neutral-200 group-hover:text-white flex items-center gap-1.5">
-            Liked Music
-            <svg className="w-3.5 h-3.5 text-neutral-400 transform rotate-45" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
-            </svg>
-          </span>
-          <span className="text-xs text-neutral-400 mt-0.5">Auto playlist</span>
-        </div>
+        
 
-        {/* Episodes for Later */}
-
-        {/* Custom Created Playlists */}
-        {playlists.map((playlist) => (
+        {/* ✨ FIXED 3: Removed the comment from inside the div properties */}
+       {/* ✨ FIXED 3: Removed the comment from inside the div properties */}
+        {sortedPlaylists.map((playlist) => (
           <div 
             key={playlist.id}
-            // 2. FIX: Typo corrected here. It is now exactly onPlaylistSelect!
-            onClick={() => onPlaylistSelect(playlist)} 
-            className="flex flex-col cursor-pointer group p-1 -mx-1 rounded hover:bg-neutral-900 transition-colors"
+            onClick={() => onPlaylistSelect(playlist)}
+            onContextMenu={(e) => handleRightClick(e, playlist)}
+            className="flex items-center gap-3 p-2 hover:bg-neutral-800 rounded-md cursor-pointer transition group"
           >
-            <span className="text-sm font-medium text-neutral-200 group-hover:text-white truncate">
-              {playlist.name}
-            </span>
-            <span className="text-xs text-neutral-400 mt-0.5">Playlist • {playlist.trackCount} tracks</span>
+            {/* ✨ NEW: Stacked the title and the track count! */}
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-neutral-200 group-hover:text-white transition-colors">
+                {playlist.isPinned ? "📌 " : ""}{playlist.name}
+              </span>
+              <span className="text-xs text-neutral-400 mt-0.5">
+                Playlist • {playlist.songs ? playlist.songs.length : 0} tracks
+              </span>
+            </div>
           </div>
         ))}
+      {contextMenu.visible && (
+        <div 
+          className="fixed z-[9999] w-48 bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl overflow-hidden py-1 text-sm text-neutral-300"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+        >
+          <button onClick={handlePin} className="w-full text-left px-4 py-2 hover:bg-neutral-700 hover:text-white transition">
+            {contextMenu.playlist?.isPinned ? "Unpin Playlist" : "Pin Playlist"}
+          </button>
+          
+          <button onClick={handleRename} className="w-full text-left px-4 py-2 hover:bg-neutral-700 hover:text-white transition">
+            Rename
+          </button>
+          
+          <button onClick={handleShare} className="w-full text-left px-4 py-2 hover:bg-neutral-700 hover:text-white transition border-b border-neutral-700">
+            Share Link
+          </button>
+          
+          <button onClick={handleDelete} className="w-full text-left px-4 py-2 hover:bg-neutral-700 text-red-400 hover:text-red-300 transition">
+            Delete
+          </button>
+        </div>
+      )}
       </div>
-
+      {renameModal.isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm transform transition-all">
+            <h3 className="text-xl font-bold text-white mb-4 text-center">Rename Playlist</h3>
+            
+            <input 
+              autoFocus
+              type="text"
+              value={renameModal.newName}
+              onChange={(e) => setRenameModal({ ...renameModal, newName: e.target.value })}
+              onKeyDown={(e) => e.key === 'Enter' && submitRename()}
+              className="w-full bg-black text-white px-4 py-3 rounded-xl border border-neutral-700 focus:outline-none focus:border-[#1ed760] transition-colors"
+              placeholder="Playlist name..."
+            />
+            
+            <div className="flex gap-3 mt-6">
+              <button 
+                onClick={() => setRenameModal({ isOpen: false, playlistId: null, newName: "" })}
+                className="flex-1 py-2.5 rounded-full font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={submitRename}
+                className="flex-1 py-2.5 rounded-full font-bold bg-[#1ed760] text-black hover:bg-[#1fdf64] hover:scale-105 transition-all"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

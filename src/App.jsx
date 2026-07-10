@@ -471,6 +471,7 @@ const [trendingSongs, setTrendingSongs] = useState([]);
               activeTab ={activeTab}
               setActiveTab = {setActiveTab}
               onPlaylistSelect={(playlist) => setSelectedPlaylist(playlist)} 
+              user = {user}
             />
             
             
