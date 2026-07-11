@@ -73,7 +73,7 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar,onAdminClick,userProfil
         <h3 className="text-white font-bold text-lg">Notifications</h3>
         <button 
           onClick={() => setShowNotifications(false)}
-          className="text-xs text-[#1ed760] hover:text-white font-medium transition-colors"
+          className="text-xs text-[#1ed760] cursor-pointer hover:text-white font-medium transition-colors"
         >
           Mark all as read
         </button>
