@@ -3,7 +3,11 @@ import React from 'react';
 const ArtistView = ({ artist, songs, onPlay, onBack }) => {
   // ✨ FILTER: Find all songs where the artist name matches the clicked artist
   const artistSongs = songs.filter(
-    (song) => song.artist.toLowerCase() === artist.name.toLowerCase()
+
+    (song) => 
+      song.artist && 
+      artist.name &&
+      song.artist.toLowerCase() === artist.name.toLowerCase()
   );
 
   const handleShufflePlay = () => {
