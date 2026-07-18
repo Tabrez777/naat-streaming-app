@@ -10,27 +10,23 @@ import AdminDashboard from './components/AdminDashboard';
 import ArtistView from './components/ArtistView';
 import SettingsView from './components/SettingsView';
 
-// ✨ STEP 1: Import Firebase configurations
 import { db } from './firebase'; 
 import { doc, getDoc, updateDoc, collection, addDoc, getDocs, increment, query, orderBy, limit } from 'firebase/firestore';
 import { updatePassword } from 'firebase/auth';
-
 
 function App() {
   const navigate = useNavigate();
   // --- CORE APP STATE ---
   const [playlists, setPlaylists] = useState([]);
   const [currentNaat, setCurrentNaat] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
   
-  // Note: These states are kept so Navbar/Sidebar don't crash, 
-  // but React Router will now handle the actual page changes!
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('Home');
   const [showAdmin, setShowAdmin] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState(null);
+  const [artists, setArtists] = useState([])
   
   const [loading, setLoading] = useState(true);
   const [songs, setSongs] = useState([]);
@@ -63,6 +59,19 @@ function App() {
 
   const toggleRepeat = () => setIsRepeating(!isRepeating);
 
+  useEffect(() => {
+    const fetchArtists = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "artists"));
+        const artistData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setArtists(artistData);
+      } catch (error) {
+        console.error("Error fetching artists:", error);
+      }
+    };
+    fetchArtists();
+  }, []);
+
   const handleAddNewSong = async (newSongData) => {
     try {
       const isDuplicate = songs.some(
@@ -77,7 +86,6 @@ function App() {
       }
 
       const songsCollectionRef = collection(db, "songs"); 
-      
       const docRef = await addDoc(songsCollectionRef, {
         ...newSongData,
         playCount : 0,
@@ -86,8 +94,6 @@ function App() {
       
       const newSong = { id: docRef.id, ...newSongData };
       setSongs((prevSongs) => [newSong, ...prevSongs]); 
-      
-      console.log("Success! Track added.");
       setShowAdmin(false);
     } catch (error) {
       console.error("Error adding track: ", error);
@@ -110,7 +116,6 @@ function App() {
         console.error("Error fetching music data:", error);
       }
     };
-    
     fetchMusicData();
   }, []);
 
@@ -121,7 +126,6 @@ function App() {
         try {
           const trackRef = doc(db, "songs", currentNaat.id);
           await updateDoc(trackRef, { playCount: increment(1) });
-          console.log(`Registered 1 valid play for: ${currentNaat.title}`);
         } catch (error) {
           console.error("Failed to update play count:", error);
         }
@@ -129,7 +133,6 @@ function App() {
     }
     return () => clearTimeout(playTimer);
   }, [currentNaat, isPlaying]);
-
 
   useEffect(() => {
     const checkPersistentSession = async () => {
@@ -170,9 +173,7 @@ function App() {
         playPromise
           .then(() => setIsPlaying(true))
           .catch(error => {
-            if (error.name === "AbortError") {
-              console.log("Track changed before the previous one could load.");
-            } else {
+            if (error.name !== "AbortError") {
               console.error("Playback blocked:", error);
               setIsPlaying(false);
             }
@@ -218,7 +219,7 @@ function App() {
   const audioProps = {
     isPlaying, togglePlay, 
     currentTime, duration, handleSeek, 
-    volume, isMuted, handleVolumeChange, toggleMute,toggleRepeat,isRepeating
+    volume, isMuted, handleVolumeChange, toggleMute, toggleRepeat, isRepeating
   };
 
   const handleLogin = (userData) => {
@@ -234,26 +235,17 @@ function App() {
   };
 
   const handleSaveToPlaylist = async (playlistName, track) => {
-    if (!track) {
-      alert("Please select and play a track before adding it to a playlist!");
-      return;
-    }
+    if (!track) return alert("Please select and play a track before adding it to a playlist!");
 
     const updatedPlaylists = playlists.map(p => {
       if (p.name === playlistName) {
         const currentSongs = p.songs || [];
-        
         if (currentSongs.some(s => s.title === track.title)) {
           alert("This track is already in the playlist!");
           return p;
         }
-
         const updatedSongs = [...currentSongs, track];
-        return { 
-          ...p, 
-          songs: updatedSongs, 
-          trackCount: updatedSongs.length 
-        };
+        return { ...p, songs: updatedSongs, trackCount: updatedSongs.length };
       }
       return p;
     });
@@ -270,32 +262,17 @@ function App() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="h-screen w-screen bg-black flex items-center justify-center text-white text-xl font-semibold tracking-wider">
-        Loading your Profile...
-      </div>
-    );
-  }
-
   const getActiveQueue = () => {
     if (selectedPlaylist) {
       const playlist = playlists.find(p => p.id === selectedPlaylist.id);
       return playlist?.songs || [];
     }
-    
-    if (selectedArtist) {
-      return songs.filter(s => s.artist === selectedArtist.name);
-    }
-    
+    if (selectedArtist) return songs.filter(s => s.artist === selectedArtist.name);
     if (currentNaat && currentNaat.category) {
       const categorySongs = songs.filter(s => s.category === currentNaat.category);
-      if (currentNaat.category === 'tilawat') {
-        return categorySongs.reverse();
-      }
+      if (currentNaat.category === 'tilawat') return categorySongs.reverse();
       return categorySongs;
     }
-    
     return songs;
   };
 
@@ -303,7 +280,6 @@ function App() {
     if (!currentNaat) return;
     const queue = getActiveQueue(); 
     if (queue.length === 0) return;
-
     const currentIndex = queue.findIndex(s => s.id === currentNaat.id);
     const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % queue.length;
     setCurrentNaat(queue[nextIndex]);
@@ -313,17 +289,13 @@ function App() {
     if (!currentNaat) return;
     const queue = getActiveQueue(); 
     if (queue.length === 0) return;
-
     const currentIndex = queue.findIndex(s => s.id === currentNaat.id);
     const previousIndex = currentIndex === -1 ? 0 : (currentIndex - 1 + queue.length) % queue.length;
     setCurrentNaat(queue[previousIndex]);
   };
 
   const handleLikeNaat = async (naat) => {
-    if(!user){
-      alert("Please Login to Like Naats!");
-      return;
-    }
+    if(!user) return alert("Please Login to Like Naats!");
 
     let likedPlaylist = playlists.find(p => p.name === "Liked Music");
     let updatedPlaylists;
@@ -331,17 +303,16 @@ function App() {
     if(!likedPlaylist){
       likedPlaylist = {id: Date.now(), name:"Liked Music", songs: [naat], trackCount:1};
       updatedPlaylists = [...playlists, likedPlaylist]
-    }
-    else {
+    } else {
       if (likedPlaylist.songs.some(s => s.id === naat.id)) return; 
-    likedPlaylist.songs = [...likedPlaylist.songs, naat];
-    likedPlaylist.trackCount = likedPlaylist.songs.length;
-    updatedPlaylists = playlists.map(p => p.name === "Liked Music" ? likedPlaylist : p);
+      likedPlaylist.songs = [...likedPlaylist.songs, naat];
+      likedPlaylist.trackCount = likedPlaylist.songs.length;
+      updatedPlaylists = playlists.map(p => p.name === "Liked Music" ? likedPlaylist : p);
     }
+    
     setPlaylists(updatedPlaylists);
     const userDocRef = doc(db, "users", user.uid);
     await updateDoc(userDocRef, { playlists: updatedPlaylists });
-    alert("Added to Liked Music! ❤️");
   };
 
   const handleUnlikeNaat = async (naat) => {
@@ -349,25 +320,29 @@ function App() {
     if(likedPlaylistIndex === -1) return;
 
     const likedPlaylist = {...playlists[likedPlaylistIndex]};
-
     likedPlaylist.songs = likedPlaylist.songs.filter(s => s.id !== naat.id);
-  likedPlaylist.trackCount = likedPlaylist.songs.length;
+    likedPlaylist.trackCount = likedPlaylist.songs.length;
 
-  const updatedPlaylists = [...playlists];
-  updatedPlaylists[likedPlaylistIndex] = likedPlaylist;
+    const updatedPlaylists = [...playlists];
+    updatedPlaylists[likedPlaylistIndex] = likedPlaylist;
 
-  setPlaylists(updatedPlaylists);
-  
-  const userDocRef = doc(db, "users", user.uid);
-  await updateDoc(userDocRef, { playlists: updatedPlaylists });
-  
-  alert("Removed from Liked Music.");
+    setPlaylists(updatedPlaylists);
+    const userDocRef = doc(db, "users", user.uid);
+    await updateDoc(userDocRef, { playlists: updatedPlaylists });
   };
 
+  if (loading) {
+    return (
+      <div className="h-[100dvh] w-screen bg-black flex items-center justify-center text-white text-xl font-semibold tracking-wider">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-screen w-screen relative overflow-hidden bg-black text-white">
+    // ✨ CHANGED: h-[100dvh] for mobile browsers
+    <div className="flex flex-col h-[100dvh] w-screen relative overflow-hidden bg-black text-white">
       
-      {/* THE MASTER AUDIO TAG (Invisible) */}
       <audio 
         ref={audioRef} 
         src={currentNaat?.audioUrl} 
@@ -390,7 +365,7 @@ function App() {
       />
 
       {/* MAIN CONTENT AREA */}
-      <div className='flex w-full h-full overflow-hidden relative'>
+      <div className='flex flex-1 w-full overflow-hidden relative'>
         <Sidebar 
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
@@ -402,14 +377,18 @@ function App() {
           user={user}
         />
         
-        <div className="flex-1 overflow-y-auto w-full relative">
+        {/* ✨ CHANGED: Removed w-full, relies on flex-1. Added scroll-smooth */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth bg-gradient-to-b from-neutral-900 to-black">
           <Routes>
             <Route path="/" element={
               <Main 
                 onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }}
                 songs={songs}
                 setSongs={setSongs}
-                onArtistClick={(artist) => setSelectedArtist(artist)} 
+                onArtistClick={(artist) => {
+                  setSelectedArtist(artist)
+                  navigate(`/artist/${artist.id}`)    
+                }}
                 recentlyPlayed={recentlyPlayed}
                 trendingSongs={trendingSongs}
               />
@@ -417,12 +396,12 @@ function App() {
             
             {/* Full Screen Player Route */}
             <Route path="/player" element={
-              <div className="absolute inset-0 z-[1000] bg-black">
+              <div className="fixed inset-0 z-[1000] bg-black">
                 <PlayPage 
                   naat={currentNaat} 
                   playPrevious={playPrevious}
                   playNext={playNext}
-                  onClose={() => navigate(-1)} 
+                  onClose={() => navigate('/')} 
                   userPlaylists={playlists}
                   handleLikeNaat={handleLikeNaat}
                   handleUnlikeNaat={handleUnlikeNaat}
@@ -435,12 +414,12 @@ function App() {
             <Route path="/settings" element={<SettingsView userProfile={userProfile} onUpdateProfile={setUserProfile} />} />
             <Route path="/admin" element={(user?.email === "mdtaffique@gmail.com" || showAdmin) ? <AdminDashboard onAddSong={handleAddNewSong} onBack={() => setShowAdmin(false)} /> : <div className="p-10">Access Denied</div>} />
             <Route path="/playlist/:id" element={<PlaylistView allPlaylists={playlists} onPlay={(naat) => setCurrentNaat(naat)} onUnlike={handleUnlikeNaat} />} />
-            <Route path="/artist/:id" element={<ArtistView songs={songs} onPlay={(naat) => setCurrentNaat(naat)} />} />
+            <Route path="/artist/:id" element={<ArtistView artists={artists} songs={songs} onPlay={(naat) => setCurrentNaat(naat)} onBack={() => navigate('/')} />} />
           </Routes>
         </div>
       </div>
 
-      {/* BOTTOM PLAY BAR (Only visible if NOT on the /player route) */}
+      {/* BOTTOM PLAY BAR */}
       <PlayBar 
         naat={currentNaat} 
         isVisible={currentNaat !== null && window.location.pathname !== '/player'} 

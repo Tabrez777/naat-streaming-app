@@ -1,11 +1,21 @@
 // ✨ FIXED 1: Added useState to the import line
 import React, { useState, useRef } from 'react'; 
+import { useNavigate } from 'react-router-dom';
 
 const ArtistSection = ({ artists, onArtistClick, songs = [] }) => {
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
 
   // State is now properly imported and won't crash
   const [showAll, setShowAll] = useState(false);
+
+  const handleArtistClick = (artist) => {
+    // 1. Call the prop function if it exists (for state updates)
+    if (onArtistClick) onArtistClick(artist);
+    
+    // 2. Perform the actual navigation
+    navigate(`/artist/${artist.id}`);
+  };
 
   const scroll = (direction) => {
     if (scrollRef.current) {

@@ -1,7 +1,28 @@
-import React from 'react';
+import React,{useEffect} from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const ArtistView = ({ artist, songs, onPlay, onBack }) => {
-  // ✨ FILTER: Find all songs where the artist name matches the clicked artist
+const ArtistView = ({ artists = [], songs = [], onPlay, onBack }) => {
+  const navigate = useNavigate();
+const {id} = useParams();
+const artist = artists.find(a => a.id === id);
+
+const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate(-1);
+    }
+  };
+
+  // 2. Safety Check: If data hasn't loaded or ID doesn't match
+  if (!artist) {
+    return (
+      <div className="h-screen flex items-center justify-center text-white">
+        <p>Loading artist details...</p>
+      </div>
+    );
+  }
+
   const artistSongs = songs.filter(
 
     (song) => 
@@ -30,11 +51,9 @@ const ArtistView = ({ artist, songs, onPlay, onBack }) => {
       {/* Back Button (Made fixed relative to container so it doesn't move) */}
       <button 
         onClick={onBack}
-        className="absolute top-6 left-4 sm:left-6 bg-black/50 p-2 rounded-full hover:scale-110 transition-all text-white z-10"
+        className="absolute top-6 left-4 sm:left-6 cursor-pointer bg-black/50 p-2 rounded-full hover:scale-110 transition-all text-white z-10"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-        </svg>
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
       </button>
 
       {/* 1. Header Section (✨ RESPONSIVE: Stacks on mobile, row on desktop) */}

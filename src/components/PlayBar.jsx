@@ -24,14 +24,17 @@ const PlayBar = ({
   const progressPercent = (currentTime / (duration || 1)) * 100;
 
   return (
-    <div className={`fixed bottom-0 left-0 w-full h-16 md:h-[90px] bg-neutral-950 md:bg-neutral-950/95 md:backdrop-blur-md border-t border-neutral-800 flex justify-between items-center px-3 md:px-6 z-[999] transform transition-transform duration-500 ease-out ${
+    // ✨ Increased mobile height slightly (h-16 to h-[68px]) for easier tapping
+    <div className={`fixed bottom-0 left-0 w-full h-[68px] md:h-[90px] bg-neutral-900 md:bg-neutral-950/95 md:backdrop-blur-md border-t border-neutral-800 flex justify-between items-center px-3 md:px-6 z-[999] transform transition-transform duration-500 ease-out ${
       isVisible ? 'translate-y-0' : 'translate-y-full'
     }`}>
       
-      {/* 1. Left Area: Metadata (Takes up more space on mobile) */}
+      {/* 1. Left Area: Metadata 
+          ✨ FIX 1: Added `min-w-0` to the flex container so long text properly truncates instead of pushing buttons off-screen!
+      */}
       <div 
         onClick={onExpand} 
-        className="flex-1 md:flex-none md:w-1/3 flex items-center gap-2 md:gap-4 overflow-hidden cursor-pointer hover:bg-neutral-800/50 rounded-lg p-1 md:p-2 transition-all mr-2 md:mr-0"
+        className="flex-1 min-w-0 md:flex-none md:w-1/3 flex items-center gap-3 md:gap-4 overflow-hidden cursor-pointer hover:bg-neutral-800/50 rounded-lg p-1 transition-all mr-2"
       >
         {naat?.coverUrl && (
           <img 
@@ -40,38 +43,44 @@ const PlayBar = ({
             className="w-10 h-10 md:w-14 md:h-14 rounded-md object-cover shadow-md shrink-0" 
           />
         )}
-        <div className="truncate flex flex-col justify-center">
+        <div className="flex flex-col justify-center min-w-0 pr-2">
           <h4 className="text-white text-sm font-semibold truncate">{naat?.title || "No Track"}</h4>
           <p className="text-neutral-400 text-xs truncate">{naat?.artist || "Unknown Artist"}</p>
         </div>
       </div>
 
       {/* 2. Center Area: Play Controls & Timeline */}
-      <div className="flex flex-col items-center justify-center shrink-0 md:w-1/3 gap-1 md:gap-2">
-        <div className="flex items-center gap-4 md:gap-6">
+      <div className="flex items-center justify-end md:justify-center shrink-0 md:w-1/3 gap-1 md:gap-2">
+        <div className="flex items-center gap-3 md:gap-6">
           
           {/* Previous Button - Hidden on Mobile */}
-          <button onClick={playPrevious} className="hidden md:block text-neutral-400 cursor-pointer hover:text-white transition-colors">
+          <button onClick={playPrevious} className="hidden md:block text-neutral-400 cursor-pointer hover:text-white transition-colors focus:outline-none">
             <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
 
-          {/* Play/Pause Button - Slightly smaller on mobile */}
-          <button onClick={togglePlay} className="w-8 h-8 md:w-9 md:h-9 flex cursor-pointer items-center justify-center bg-white text-black rounded-full hover:scale-105 transition-transform shadow">
+          {/* Play/Pause Button - Responsive sizing */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); togglePlay(); }} 
+            className="w-9 h-9 md:w-9 md:h-9 flex cursor-pointer items-center justify-center bg-white text-black rounded-full hover:scale-105 transition-transform shadow focus:outline-none"
+          >
             {isPlaying ? (
-              <svg className="w-4 h-4 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              <svg className="w-5 h-5 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
             ) : (
-              <svg className="w-4 h-4 md:w-4 md:h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <svg className="w-5 h-5 md:w-4 md:h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             )}
           </button>
 
           {/* Next Button - Visible on Mobile */}
-          <button onClick={playNext} className="text-neutral-400 cursor-pointer hover:text-white transition-colors">
-            <svg className="w-6 h-6 md:w-7 md:h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          <button 
+            onClick={(e) => { e.stopPropagation(); playNext(); }} 
+            className="text-neutral-400 cursor-pointer hover:text-white transition-colors focus:outline-none pr-1 md:pr-0"
+          >
+            <svg className="w-8 h-8 md:w-7 md:h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
         </div>
         
         {/* Timeline - Hidden completely on mobile screens! */}
-        <div className="hidden md:flex w-full items-center gap-2 text-xs text-neutral-400 font-medium">
+        <div className="hidden md:flex w-full items-center gap-2 text-xs text-neutral-400 font-medium mt-1">
           <span className="w-10 text-right">{formatTime(currentTime)}</span>
           <input 
             type="range" min={0} max={duration || 0} value={currentTime} 
@@ -88,7 +97,7 @@ const PlayBar = ({
       <div className="hidden md:flex items-center justify-end w-1/3 gap-3 text-neutral-400">
         <button
           onClick={handleShufflePlay}
-          className="w-5 h-5 border-2 border-transparent hover:border-neutral-500 text-neutral-400 cursor-pointer rounded-full flex items-center justify-center hover:text-white transition-colors"
+          className="w-5 h-5 border-2 border-transparent hover:border-neutral-500 text-neutral-400 cursor-pointer rounded-full flex items-center justify-center hover:text-white transition-colors focus:outline-none"
           title="Shuffle Playlist"
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -96,7 +105,7 @@ const PlayBar = ({
           </svg>
         </button>
 
-        <button onClick={toggleMute} className="hover:text-white transition-colors ml-2">
+        <button onClick={toggleMute} className="hover:text-white transition-colors ml-2 focus:outline-none">
           {isMuted || volume === 0 ? (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
           ) : (
@@ -108,6 +117,16 @@ const PlayBar = ({
           onChange={(e) => handleVolumeChange(Number(e.target.value))}
           className="w-24 h-1 rounded-full appearance-none cursor-pointer accent-white hover:accent-[#1ed760] transition-all"
           style={{ background: `linear-gradient(to right, #ffffff ${volume * 100}%, #525252 ${volume * 100}%)` }}
+        />
+      </div>
+
+      {/* ✨ FIX 2: Mobile Mini Progress Bar! 
+          This adds a tiny 2px line at the very bottom of the screen on mobile to show song progress. 
+      */}
+      <div className="absolute bottom-0 left-0 w-full h-[2px] bg-neutral-800 md:hidden overflow-hidden">
+        <div 
+          className="h-full bg-white rounded-r-full transition-all duration-150 ease-out" 
+          style={{ width: `${progressPercent}%` }}
         />
       </div>
 
