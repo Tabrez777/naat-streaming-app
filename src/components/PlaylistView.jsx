@@ -1,13 +1,28 @@
-import React,{useMemo} from 'react';
+import React, { useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const PlaylistView = ({ playlist, onPlay, onBack, onUnlike }) => {
-  // If no playlist is selected, don't render anything
-  if (!playlist) return null;
+// ✨ FIXED 1: Replaced 'playlist' prop with 'allPlaylists' to match App.jsx
+const PlaylistView = ({ allPlaylists, onPlay, onUnlike }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  
+  // ✨ FIXED 2: Find the correct playlist using the ID from the URL!
+  // We use parseInt(id) because the URL ID is a string, but your playlist IDs are numbers
+  const playlist = allPlaylists?.find(p => p.id === parseInt(id) || p.id === id);
+
+  // If the playlist hasn't loaded yet or doesn't exist, show a safe fallback
+  if (!playlist) {
+    return (
+      <div className="flex-1 bg-neutral-900 rounded-lg p-6 flex items-center justify-center text-neutral-400">
+        Loading playlist...
+      </div>
+    );
+  }
 
   const songs = playlist.songs || [];
 
   const randomCoverUrl = useMemo(() => {
-    if (songs.length === 0) return null; // If empty, return null
+    if (songs.length === 0) return null; 
     const randomIndex = Math.floor(Math.random() * songs.length);
     return songs[randomIndex].coverUrl;
   }, [songs]);
@@ -16,7 +31,6 @@ const PlaylistView = ({ playlist, onPlay, onBack, onUnlike }) => {
     alert("Downloading a full playlist will require zipping multiple files! You can hook this up to your download logic later.");
   };
 
-  // ✨ NEW: Shuffle logic to pick a random track from this playlist
   const handleShufflePlay = () => {
     if (songs.length === 0) return;
     const randomIndex = Math.floor(Math.random() * songs.length);
@@ -43,23 +57,22 @@ const PlaylistView = ({ playlist, onPlay, onBack, onUnlike }) => {
   };
 
   const formatPlayCount = (count) => {
-  // If the song doesn't have a play count yet, default to 0
-  if (!count) return "0"; 
-  
-  // The built-in JS formatter handles the 'k' and 'M' math automatically!
-  return Intl.NumberFormat('en-US', {
-    notation: "compact",
-    maximumFractionDigits: 1
-  }).format(count);
-};
+    if (!count) return "0"; 
+    return Intl.NumberFormat('en-US', {
+      notation: "compact",
+      maximumFractionDigits: 1
+    }).format(count);
+  };
 
   return (
     <div className="flex-1 bg-neutral-900 rounded-lg p-6 overflow-y-auto text-white">
       
       {/* Header Section */}
       <div className="flex items-end gap-6 mb-8 border-b border-neutral-800 pb-6">
+        
+        {/* ✨ FIXED 3: Cleaned up the Back button onClick to only use navigate(-1) */}
         <button 
-          onClick={onBack}
+          onClick={() => navigate(-1)}
           className="self-start mt-2 p-2 bg-neutral-800 rounded-full hover:bg-neutral-700 transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
@@ -82,7 +95,7 @@ const PlaylistView = ({ playlist, onPlay, onBack, onUnlike }) => {
         <div>
           <p className="text-sm font-bold uppercase tracking-widest mb-1 text-neutral-400">Playlist</p>
           <h1 className="text-5xl font-black mb-2">{playlist.name}</h1>
-          <p className="text-neutral-400 py-2 text-sm">{songs.length} Naats  {calculateTotalTime(songs)} </p>
+          <p className="text-neutral-400 py-2 text-sm">{songs.length} Tracks {calculateTotalTime(songs)} </p>
 
           <div className='flex items-center gap-4'>
             {/* Standard Play Button */}
@@ -105,7 +118,7 @@ const PlaylistView = ({ playlist, onPlay, onBack, onUnlike }) => {
               </svg>
             </button>
 
-            {/* ✨ NEW: Shuffle Button */}
+            {/* Shuffle Button */}
             <button
               onClick={handleShufflePlay}
               className="w-10 h-10 border-2 border-neutral-500 text-neutral-400 cursor-pointer rounded-full flex items-center justify-center hover:border-white hover:text-[#1ed760] hover:border-[#1ed760] transition-colors"

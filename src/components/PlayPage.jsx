@@ -1,6 +1,6 @@
-import React, { useState,useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useColor } from 'color-thief-react';
-
+import { useParams, useNavigate } from 'react-router-dom';
 
 const PlayPage = ({ 
   naat, 
@@ -14,12 +14,16 @@ const PlayPage = ({
   handleSeek, 
   volume, 
   handleVolumeChange,
-  handleLikeNaat, // ✨ Destructured directly
-  handleUnlikeNaat, // ✨ Destructured directly
+  handleLikeNaat,
+  handleUnlikeNaat,
   userPlaylists = [], 
-  onSaveToPlaylist,toggleRepeat,isRepeating
+  onSaveToPlaylist,
+  toggleRepeat,
+  isRepeating
 }) => {
 
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { data: dominantColor, loading } = useColor(naat?.coverUrl, 'hex', {
     crossOrigin: 'anonymous',
   });
@@ -31,26 +35,21 @@ const PlayPage = ({
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // --- NEW LOGIC: Handling the Save Action ---
   const handleAddPlaylist = (playlistName) => {
-  if(onSaveToPlaylist){
-    onSaveToPlaylist(playlistName)
-  }
-
+    if(onSaveToPlaylist){
+      onSaveToPlaylist(playlistName)
+    }
     setIsMenuOpen(false);
   };
 
-  // --- NEW LOGIC: The Plus Button Click ---
   const handlePlusClick = () => {
     if (userPlaylists.length === 0) {
-      // If no playlists exist, generate a random one and save immediately
       const randomID = Math.floor(Math.random() * 1000);
       const randomName = `Auto-Playlist #${randomID}`;
       
       handleAddPlaylist(randomName);
       alert(`No playlists found. Automatically created and added to: ${randomName}`);
     } else {
-      // Playlists exist, just open the menu
       setIsMenuOpen(!isMenuOpen);
     }
   };
@@ -90,20 +89,30 @@ const PlayPage = ({
     <div 
       className="flex-1 w-full h-full p-4 md:p-12 relative flex flex-col overflow-y-auto transition-colors duration-1000 ease-in-out"
       style={{
-        // This creates a smooth fade from the album color at the top down to black at the bottom
         background: `linear-gradient(to bottom, ${bgColor} 0%, #000000 80%)`
       }}
     >
       
-      {/* 1. Top Navigation Bar */}
-      <div className="pt-safe  flex justify-between items-center w-full mb-8 shrink-0">
-        <button onClick={onClose} className="text-white hover:text-green-500 transition-colors p-2">
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+      {/* 1. Top Navigation Bar (Cleaned up the illegal space character here!) */}
+      <div className="flex justify-between items-center w-full mb-8 shrink-0 pt-2">
+        
+        {/* ✨ The exact same button from PlaylistView, doing both actions! */}
+        <button 
+          onClick={() => {
+            navigate(-1);
+            onClose();
+          }} 
+          className="p-2 bg-neutral-800 rounded-full cursor-pointer hover:bg-neutral-700 transition-colors"
+        >
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
         </button>
+
         <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Now Playing</span>
-        <button className="text-white hover:text-green-500 transition-colors p-2">
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
-        </button>
+        
+        {/* Empty div just to keep the "Now Playing" text perfectly centered */}
+        <div className="w-9"></div>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full min-h-full">
@@ -121,10 +130,8 @@ const PlayPage = ({
           </div>
           <button onClick={() => {
                 if (isLiked) {
-                  // ✨ FIXED: Removed 'props.'
                   handleUnlikeNaat(naat); 
                 } else {
-                  // ✨ FIXED: Removed 'props.'
                   handleLikeNaat(naat);
                 }
               }} className="text-neutral-400 hover:text-green-500 transition-colors ml-4">
@@ -141,7 +148,6 @@ const PlayPage = ({
             onChange={(e) => handleSeek(Number(e.target.value))}
             className="w-full h-1 rounded-full appearance-none cursor-pointer accent-white hover:accent-[#1ed760]"
             style={{
-              // ✨ THIS IS THE MAGIC: Fills white up to the current progress, and grey for the rest
               background: `linear-gradient(to right, #ffffff ${progressPercent}%, #525252 ${progressPercent}%)`
             }}
           />
@@ -154,19 +160,16 @@ const PlayPage = ({
           
           {/* --- LEFT SIDE: Add to Playlist & Shuffle --- */}
           <div className="flex items-center gap-4 w-20">
-            {/* Add to Playlist Container */}
             <div className="relative">
               
-              {/* UPDATED BUTTON TRIGGER */}
               <button 
                 onClick={handlePlusClick}
                 className={`transition-colors ${isMenuOpen ? 'text-green-500' : 'text-neutral-400 hover:text-white'}`}
                 title="Add to Playlist"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                <svg className="w-6 h-6 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
               </button>
 
-              {/* The Glassy Dropdown Menu */}
               {isMenuOpen && (
                 <div className="absolute bottom-full mb-4 left-0 w-48 bg-neutral-800/95 backdrop-blur-md border border-neutral-600 rounded-lg shadow-xl overflow-hidden z-50">
                   <div className="px-3 py-2 border-b border-neutral-600 bg-neutral-900/50">
@@ -186,14 +189,11 @@ const PlayPage = ({
                 </div>
               )}
             </div>
-
-            {/* Shuffle Button */}
-            
           </div>
           
           {/* --- CENTER: Prev, Play, Next --- */}
           <button onClick={playPrevious} className="text-white hover:text-green-500 transition-colors">
-            <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            <svg className="w-10 h-10 cursor-pointer" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
           
           <button onClick={togglePlay} className="w-20 h-20 flex items-center justify-center bg-green-500 text-black rounded-full hover:scale-105 transition-transform shadow-lg shrink-0">
@@ -209,12 +209,9 @@ const PlayPage = ({
           </button>
           
           {/* --- RIGHT SIDE: Repeat --- */}
-          {/* Extract isRepeating and toggleRepeat from your props at the top of the file! */}
-
           <div className="flex items-center justify-end w-20">
             <button 
-              onClick={toggleRepeat} // ✨ 1. Trigger the toggle
-              // ✨ 2. Make it Spotify Green if active, or grey if inactive
+              onClick={toggleRepeat} 
               className={`transition-colors ${
                 isRepeating ? 'text-[#1ed760] hover:text-white' : 'text-neutral-400 hover:text-white'
               }`}

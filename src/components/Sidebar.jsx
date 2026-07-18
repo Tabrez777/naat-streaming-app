@@ -1,13 +1,15 @@
-// ✨ FIXED 1: Added useEffect to the import
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
-// ✨ FIXED 2: Added 'user' to the props list here
 const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, setActiveTab, isOpen, onClose, user }) => {
   
   const [isCreating, setIsCreating] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
+  
+  // ✨ Hook is properly initialized here at the top!
+  const navigate = useNavigate();
 
   const handleSavePlaylist = (e) => {
     if (e.key === 'Enter' && newPlaylistName.trim() !== "") {
@@ -54,14 +56,12 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
     let safeX = e.clientX;
     let safeY = e.clientY;
     
-    // SMART FLIP: If clicked near the right edge, shift left
     if (e.clientX > window.innerWidth - 200) {
       safeX = e.clientX - 200;
     }
     
-    // AGGRESSIVE FLIP: If clicked in the bottom 250px (near Playbar), force it UP!
     if (e.clientY > window.innerHeight - 250) {
-      safeY = e.clientY - 180; // 180px pushes it safely above the cursor
+      safeY = e.clientY - 180; 
     }
     
     setContextMenu({
@@ -87,18 +87,15 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
     syncToFirebase(updated);
   };
 
-  // 1. Opens the custom modal instead of the browser prompt
   const handleRename = () => {
     setRenameModal({
       isOpen: true,
       playlistId: contextMenu.playlist.id,
       newName: contextMenu.playlist.name
     });
-    // Hide the context menu so it's not floating behind the modal
     setContextMenu({ ...contextMenu, visible: false }); 
   };
 
-  // 2. Saves the new name to Firebase when the user clicks "Save"
   const submitRename = () => {
     if (!renameModal.newName || renameModal.newName.trim() === "") {
       setRenameModal({ isOpen: false, playlistId: null, newName: "" });
@@ -110,7 +107,6 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
     );
     syncToFirebase(updated);
     
-    // Close the modal
     setRenameModal({ isOpen: false, playlistId: null, newName: "" });
   };
 
@@ -138,30 +134,32 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
       <div className="flex flex-col gap-1 mb-2">
        <div className="flex items-center gap-4 px-2 mb-4 h-12 flex-shrink-0 md:hidden">
   
-  {/* Close 'X' Button */}
-  <button 
-    onClick={onClose}
-    className="text-white hover:bg-neutral-800 p-2 rounded-full transition duration-200 focus:outline-none"
-    aria-label="Close sidebar"
-  >
-    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  </button>
+        {/* Close 'X' Button */}
+        <button 
+          onClick={onClose}
+          className="text-white hover:bg-neutral-800 p-2 rounded-full transition duration-200 focus:outline-none"
+          aria-label="Close sidebar"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
   
-  {/* Red Play Circle Icon + Website Name */}
-  <div className="flex items-center gap-1.5 cursor-pointer">
-    <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center">
-      <svg className="w-3 h-3 text-white fill-current translate-x-[1px]" viewBox="0 0 24 24">
-        <path d="M8 5v14l11-7z" />
-      </svg>
-    </div>
-    <span className="text-xl font-bold tracking-tight font-sans">TEZ</span>
-  </div>
-</div>
-        {/* Home */}
+        {/* Red Play Circle Icon + Website Name */}
+        <div className="flex items-center gap-1.5 cursor-pointer">
+          <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center">
+            <svg className="w-3 h-3 text-white fill-current translate-x-[1px]" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+          <span className="text-xl font-bold tracking-tight font-sans">TEZ</span>
+        </div>
+      </div>
+      
+        {/* ✨ FIXED: Home Button now uses navigate('/') */}
         <button 
           onClick={() => {
+            navigate('/'); 
             setActiveTab("Home");
             onPlaylistSelect(null); 
           }}
@@ -174,8 +172,13 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
           </svg>
           Home
         </button>
+
+        {/* ✨ FIXED: Settings Button now uses navigate('/settings') */}
         <button 
-          onClick={() => setActiveTab('Settings')}
+          onClick={() => {
+            navigate('/settings');
+            setActiveTab('Settings');
+          }}
           className={`flex cursor-pointer items-center gap-6 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-150 ${
             activeTab === 'Settings' ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-300 hover:bg-neutral-900'
           }`}
@@ -216,18 +219,16 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
 
       <div className="flex-1 overflow-y-auto px-2 flex flex-col gap-4 mt-3 scrollbar-none">
         
-        
-
-        {/* ✨ FIXED 3: Removed the comment from inside the div properties */}
-       {/* ✨ FIXED 3: Removed the comment from inside the div properties */}
         {sortedPlaylists.map((playlist) => (
           <div 
             key={playlist.id}
-            onClick={() => onPlaylistSelect(playlist)}
+            onClick={() => {
+              navigate(`/playlist/${playlist.id}`);
+              onPlaylistSelect(playlist);
+            }}
             onContextMenu={(e) => handleRightClick(e, playlist)}
             className="flex items-center gap-3 p-2 hover:bg-neutral-800 rounded-md cursor-pointer transition group"
           >
-            {/* ✨ NEW: Stacked the title and the track count! */}
             <div className="flex flex-col">
               <span className="text-sm font-medium text-neutral-200 group-hover:text-white transition-colors">
                 {playlist.isPinned ? "📌 " : ""}{playlist.name}
@@ -238,6 +239,9 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Moved contextMenu OUTSIDE of the overflow container! */}
       {contextMenu.visible && (
         <div 
           className="fixed z-[9999] w-48 bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl overflow-hidden py-1 text-sm text-neutral-300"
@@ -260,7 +264,7 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
           </button>
         </div>
       )}
-      </div>
+
       {renameModal.isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm transform transition-all">
