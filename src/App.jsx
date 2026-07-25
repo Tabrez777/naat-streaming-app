@@ -9,6 +9,7 @@ import PlaylistView from './components/PlaylistView';
 import AdminDashboard from './components/AdminDashboard';
 import ArtistView from './components/ArtistView';
 import SettingsView from './components/SettingsView';
+import './index.css'; 
 
 import { db } from './firebase'; 
 import { doc, getDoc, updateDoc, collection, addDoc, getDocs, increment, query, orderBy, limit } from 'firebase/firestore';
@@ -359,6 +360,7 @@ function App() {
         onLogout={handleLogout}
         userProfile={userProfile}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        closeSidebar = {() => setIsSidebarOpen(false)}
         onAdminClick={() => setShowAdmin(true)} 
         songs={songs}
         onPlay={(naat) => setCurrentNaat(naat)}
@@ -415,6 +417,11 @@ function App() {
             <Route path="/admin" element={(user?.email === "mdtaffique@gmail.com" || showAdmin) ? <AdminDashboard onAddSong={handleAddNewSong} onBack={() => setShowAdmin(false)} /> : <div className="p-10">Access Denied</div>} />
             <Route path="/playlist/:id" element={<PlaylistView allPlaylists={playlists} onPlay={(naat) => setCurrentNaat(naat)} onUnlike={handleUnlikeNaat} />} />
             <Route path="/artist/:id" element={<ArtistView artists={artists} songs={songs} onPlay={(naat) => setCurrentNaat(naat)} onBack={() => navigate('/')} />} />
+
+            {/* ✅ FIXED: Now these routes are safely INSIDE the Routes tag! */}
+            <Route path="/login" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
+            <Route path="/signup" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
+            
           </Routes>
         </div>
       </div>

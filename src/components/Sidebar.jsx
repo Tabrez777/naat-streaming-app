@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -8,6 +8,8 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
   const [isCreating, setIsCreating] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAuthViewOpen = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/account';
 
   const handleSavePlaylist = (e) => {
     if (e.key === 'Enter' && newPlaylistName.trim() !== "") {
@@ -98,9 +100,11 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
       )}
 
       {/* ✨ FIX 2: Used h-[100dvh] and added mobile bottom padding (pb-28) so playlists aren't hidden behind PlayBar */}
-      <aside className={`w-64 h-[100dvh] text-white flex flex-col pt-3 pb-28 md:pb-6 px-4 select-none border-r border-neutral-900 fixed md:relative top-0 left-0 z-50 transition-transform duration-300 ease-in-out bg-black md:bg-transparent ${
-        isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-      }`} style={{ borderRight:'1.4px solid #77686856'}}>
+       <aside className={`h-[100dvh] text-white flex flex-col pt-3 pb-28 md:pb-6 select-none border-neutral-900 fixed md:relative top-0 left-0 z-50 transition-all duration-300 ease-in-out bg-black md:bg-transparent overflow-hidden ${
+        isAuthViewOpen 
+          ? 'w-0 px-0 opacity-0 border-none -translate-x-full' // Completely hide during Login
+          : `w-64 px-4 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}` // Normal Behavior
+      }`} style={{ borderRight: isAuthViewOpen ? 'none' : '1.4px solid #77686856' }}>
         
         {/* 🧭 Main Navigation Links */}
         <div className="flex flex-col gap-1 mb-2">

@@ -1,105 +1,84 @@
-import React, { useRef,useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
-const RecentSongsSection = ({ songs, onPlay }) => {
-
+const RecentSongsSection = ({ songs = [], onPlay }) => {
   const scrollRef = useRef(null);
-  
   const [showAll, setShowAll] = useState(false);
 
-  // Function to scroll left or right
   const scroll = (direction) => {
     if (scrollRef.current) {
-      const { current } = scrollRef;
-      const scrollAmount = 300; // Adjust this to change how far it scrolls
-      current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
+      const scrollAmount = 300;
+      scrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
     }
   };
 
-  if (!songs || songs.length === 0) {
-    return <div className="p-6 text-neutral-400">Loading...</div>;
+  // ✨ FIX 1: Added automatic scroll to top!
+  useEffect(() => {
+    if (showAll) {
+      const mainContainer = document.querySelector('.flex-1.overflow-y-auto');
+      if (mainContainer) {
+        mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [showAll]);
+
+  if (!songs || songs.length === 0) return null;
+
+  // 🚀 FIX 2: Added the missing renderCard function back!
+  const renderCard = (song, isGrid = false) => (
+    <div key={song.id} onClick={() => onPlay(song)} className={`group/card p-4 rounded-2xl bg-neutral-900/40 hover:bg-neutral-800/80 transition-all duration-500 cursor-pointer border border-transparent hover:border-neutral-700/50 hover:shadow-2xl hover:shadow-black ${isGrid ? 'w-full' : 'min-w-[200px] w-[200px]'}`}>
+      <div className="relative aspect-square mb-4 rounded-xl overflow-hidden shadow-lg">
+        <img src={song.coverUrl} alt={song.title} className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute bottom-2 right-2 translate-y-6 opacity-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 transition-all duration-300 ease-out z-10">
+          <div className="w-12 h-12 bg-[#1ed760] rounded-full flex items-center justify-center hover:scale-105 hover:bg-[#1fdf64] shadow-xl shadow-[#1ed760]/40">
+            <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+          </div>
+        </div>
+      </div>
+      <h3 className="text-white font-bold truncate text-base mb-1 group-hover/card:text-[#1ed760] transition-colors duration-300">{song.title}</h3>
+      <p className="text-neutral-400 text-sm truncate font-medium">{song.artist}</p>
+    </div>
+  );
+
+  // 🚀 THE "SEPARATE PAGE" (FULL PAGE GRID OVERLAY)
+  if (showAll) {
+    return (
+      <div className="absolute top-0 left-0 w-full min-h-full z-[100] bg-[#121212] pb-32">
+        <div className="sticky top-0 z-[110] bg-[#121212]/95 backdrop-blur-md px-8 py-6 flex items-center gap-6 border-b border-white/5 shadow-2xl">
+          <button onClick={() => setShowAll(false)} className="p-3 rounded-full bg-black hover:bg-neutral-800 hover:scale-105 transition-all cursor-pointer text-white shadow-lg border border-white/10">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          {/* ✨ FIX 3: Fixed the Title! */}
+          <h1 className="text-white text-4xl font-extrabold tracking-tight">Naat-e-Paak</h1>
+        </div>
+        
+        <div className="p-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 relative z-[105]">
+          {songs.map(song => renderCard(song, true))}
+        </div>
+      </div>
+    );
   }
 
-  const displayedSongs = showAll ? songs :songs.slice(0, 7);
-
+  // 🚀 STANDARD HORIZONTAL SCROLL VIEW
   return (
-    <div className="p-6 relative group">
-      
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white">Naat-e-Paak</h2>
+    <div className="p-6 relative group font-sans">
+      <div className="flex items-center justify-between mb-6 pr-2">
+        <h2 className="text-white text-2xl font-bold tracking-tight">Naat-e-Paak</h2>
+        
         {songs.length > 7 && (
-          <button
-          onClick={() => setShowAll(!showAll)}
-            className="text-sm font-bold cursor-pointer text-neutral-400 hover:text-white transition-colors tracking-wider uppercase">
-            {showAll ? 'Show Less' : 'Show All'}
+          <button onClick={() => setShowAll(true)} className="group/btn flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/60 hover:bg-neutral-800 transition-all duration-300 backdrop-blur-md border border-neutral-800 hover:border-neutral-600 cursor-pointer">
+            <span className="text-xs font-bold text-neutral-300 group-hover/btn:text-white uppercase tracking-widest transition-colors">Show All</span>
+            <svg className="w-4 h-4 text-neutral-400 group-hover/btn:text-white transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
           </button>
         )}
       </div>
       
-      {/* 1. Scrollable Container */}
-      <div 
-        ref={scrollRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {displayedSongs.map((song) => (
-          <div 
-            key={song.id} 
-            onClick={() => onPlay(song)}
-            className="bg-neutral-800/40 p-4 relative group rounded-xl hover:bg-neutral-800 transition-all cursor-pointer min-w-[200px] w-[200px] group"
-          >
-            <div className="relative aspect-square mb-4">
-              <img 
-                src={song.coverUrl} 
-                alt={song.title} 
-                className="w-full h-full object-cover rounded-md shadow-lg"
-              />
-              <div className="absolute bottom-2 right-2 w-12 h-12 bg-[#1ed760] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:scale-105 transition-all shadow-xl">
-                <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-            <h3 className="text-white font-semibold truncate">{song.title}</h3>
-            <p className="text-neutral-400 text-sm truncate mt-1">{song.artist}</p>
-          </div>
-        ))}
-      </div> {/* ✨ THIS DIV CLOSES HERE NOW ✨ */}
+      <div ref={scrollRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {songs.slice(0, 7).map(song => renderCard(song, false))}
+      </div>
 
-      {/* 2. LEFT Scroll Button (Moved outside the scrolling div) */}
-      <button onClick={() => scroll('left')} className="absolute cursor-pointer left-10 top-1/2 bg-black/30 backdrop-blur-md p-3 rounded-full text-white z-20">
-        <svg 
-  width="20" 
-  height="20" 
-  viewBox="0 0 24 24" 
-  fill="none" 
-  stroke="white" 
-  strokeWidth="2" 
-  strokeLinecap="round" 
-  strokeLinejoin="round"
->
-  <path d="M15 18l-6-6 6-6"/>
-</svg>
-      </button>
-
-      {/* 3. RIGHT Scroll Button (Moved outside the scrolling div) */}
-      <button onClick={() => scroll('right')} className="absolute cursor-pointer right-10 top-1/2 bg-black/30 backdrop-blur-md p-3 rounded-full text-white z-20">
-        <svg 
-    width="20" 
-    height="20" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="white" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-  >
-    <path d="M9 18l6-6-6-6"/>
-  </svg>
-      </button>
-
+      <button onClick={() => scroll('left')} className="absolute opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer left-4 top-[55%] -translate-y-1/2 bg-black/60 hover:bg-black/90 hover:scale-105 backdrop-blur-xl p-3 rounded-full text-white z-20 shadow-2xl border border-white/10"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button onClick={() => scroll('right')} className="absolute opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer right-4 top-[55%] -translate-y-1/2 bg-black/60 hover:bg-black/90 hover:scale-105 backdrop-blur-xl p-3 rounded-full text-white z-20 shadow-2xl border border-white/10"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
   );
 };
