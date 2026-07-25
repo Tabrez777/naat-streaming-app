@@ -382,19 +382,20 @@ function App() {
         {/* ✨ CHANGED: Removed w-full, relies on flex-1. Added scroll-smooth */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth bg-gradient-to-b from-neutral-900 to-black">
           <Routes>
-            <Route path="/" element={
-              <Main 
-                onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }}
-                songs={songs}
-                setSongs={setSongs}
-                onArtistClick={(artist) => {
-                  setSelectedArtist(artist)
-                  navigate(`/artist/${artist.id}`)    
-                }}
-                recentlyPlayed={recentlyPlayed}
-                trendingSongs={trendingSongs}
-              />
-            } />
+        <Route path="/" element={
+          <Main 
+            onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }}
+            songs={songs}
+            setSongs={setSongs}
+            artists={artists} /* ✨ FIX: Pass artists here so ArtistSection can see them! */
+            onArtistClick={(artist) => {
+              setSelectedArtist(artist)
+              navigate(`/artist/${artist.id}`)    
+            }}
+            recentlyPlayed={recentlyPlayed}
+            trendingSongs={trendingSongs}
+          />
+        } />
             
             {/* Full Screen Player Route */}
             <Route path="/player" element={
@@ -413,15 +414,8 @@ function App() {
               </div>
             } />
 
-            <Route path="/settings" element={<SettingsView userProfile={userProfile} onUpdateProfile={setUserProfile} />} />
-            <Route path="/admin" element={(user?.email === "mdtaffique@gmail.com" || showAdmin) ? <AdminDashboard onAddSong={handleAddNewSong} onBack={() => setShowAdmin(false)} /> : <div className="p-10">Access Denied</div>} />
-            <Route path="/playlist/:id" element={<PlaylistView allPlaylists={playlists} onPlay={(naat) => setCurrentNaat(naat)} onUnlike={handleUnlikeNaat} />} />
-            <Route path="/artist/:id" element={<ArtistView artists={artists} songs={songs} onPlay={(naat) => setCurrentNaat(naat)} onBack={() => navigate('/')} />} />
-
-            {/* ✅ FIXED: Now these routes are safely INSIDE the Routes tag! */}
-            <Route path="/login" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
-            <Route path="/signup" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
-            
+            <Route path="/login" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} artists={artists} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
+            <Route path="/signup" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} artists={artists} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
           </Routes>
         </div>
       </div>
