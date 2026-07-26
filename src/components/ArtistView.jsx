@@ -1,4 +1,5 @@
 import React,{useEffect} from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const ArtistView = ({ artists = [], songs = [], onPlay, onBack }) => {
@@ -44,9 +45,14 @@ const handleBack = () => {
   const handleDownloadPlaylist = () => {
     alert("Downloading a full playlist will require zipping multiple files! You can hook this up to your download logic later.");
   };
+  
 
   return (
+    
     <div className="h-full flex flex-col pb-24 overflow-y-auto font-sans relative">
+      <Helmet>
+   <title>{artist.name} Naats and Qawwalis | TEZ Music</title>
+</Helmet>
       
       {/* Back Button (Made fixed relative to container so it doesn't move) */}
       <button 

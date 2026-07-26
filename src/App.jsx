@@ -183,6 +183,17 @@ function App() {
     }
   }, [currentNaat]);
 
+   useEffect(() => {
+    // If the app has finished loading, but there is NO user logged in...
+    if (!loading && !user) {
+      // And they try to go anywhere EXCEPT the login or signup page...
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+        // Instantly force them back to the login screen!
+        navigate('/login', { replace: true }); 
+      }
+    }
+  }, [user, loading, navigate]);
+
   const togglePlay = () => {
     if (isPlaying) {
       audioRef.current.pause();
@@ -414,9 +425,12 @@ function App() {
               </div>
             } />
 
-            <Route path="/login" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} artists={artists} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
-            <Route path="/signup" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} artists={artists} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
-          </Routes>
+              {/* 👇 PASTE THIS MISSING ROUTE HERE 👇 */}
+          <Route path="/artist/:id" element={<ArtistView artists={artists} songs={songs} onPlay={(naat) => setCurrentNaat(naat)} onBack={() => navigate('/')} />} />
+
+          <Route path="/login" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} artists={artists} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
+          <Route path="/signup" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} artists={artists} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
+        </Routes>
         </div>
       </div>
 
