@@ -1,5 +1,12 @@
 @import "tailwindcss";
 @import "tailwind-scrollbar-hide/v4";
+@keyframes equalizer-bounce {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1.0); }
+}
+.animate-music-bar-1 { animation: equalizer-bounce 0.7s ease-in-out infinite; transform-origin: bottom; }
+.animate-music-bar-2 { animation: equalizer-bounce 0.5s ease-in-out infinite 0.15s; transform-origin: bottom; }
+.animate-music-bar-3 { animation: equalizer-bounce 0.8s ease-in-out infinite 0.3s; transform-origin: bottom; }
 
 ::-webkit-scrollbar {
   display: none;

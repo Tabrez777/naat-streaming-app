@@ -14,18 +14,16 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
   
   const isAuthViewOpen = currentPath === '/login' || currentPath === '/signup' || currentPath === '/account';
   
-  // ✨ 1. NOTIFICATION STATES
   const [hasUnread, setHasUnread] = useState(false);
-  
-  // ✨ 2. NEW: Track which songs have been cleared/hidden by the user
   const [clearedUntilId, setClearedUntilId] = useState(() => localStorage.getItem('clearedUntilId') || null);
 
+  // ✨ FIX: Look at songs[0] because that is where newly uploaded tracks arrive!
   useEffect(() => {
     if (songs.length > 0) {
-      const latestSongId = songs[songs.length - 1]?.id;
+      const latestSongId = songs[0]?.id;
       const seenId = localStorage.getItem('lastSeenSongId');
       
-      // If the latest song is different from what they last saw, trigger the Red Dot!
+      // If the newest song ID differs from what they last viewed, light up the red dot!
       if (latestSongId && String(latestSongId) !== seenId) {
         setHasUnread(true);
       }
@@ -36,25 +34,23 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
     const willShow = !showNotifications;
     setShowNotifications(willShow);
     
-    // Opening the menu removes the red dot, but keeps the items in the list
     if (willShow && songs.length > 0) {
       setHasUnread(false);
-      const latestSongId = songs[songs.length - 1]?.id;
+      const latestSongId = songs[0]?.id;
       if (latestSongId) {
         localStorage.setItem('lastSeenSongId', String(latestSongId));
       }
     }
   };
 
-  // ✨ 3. NEW: This function empties the list!
   const handleMarkAllAsRead = () => {
     setHasUnread(false); 
     if (songs.length > 0) {
-      const latestSongId = songs[songs.length - 1]?.id;
+      const latestSongId = songs[0]?.id;
       if (latestSongId) {
         const idStr = String(latestSongId);
         localStorage.setItem('clearedUntilId', idStr);
-        setClearedUntilId(idStr); // This instantly empties the visible list
+        setClearedUntilId(idStr); 
       }
     }
   };
@@ -65,20 +61,18 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
       closeSidebar();
     }
     setIsSearchBarOpen(false);
-  }
+  };
 
   const handleAuthSuccess = (userData) => {
     onLogin(userData); 
     navigateTo('/'); 
   };
 
-  // ✨ 4. LOGIC TO HIDE CLEARED NOTIFICATIONS:
-  // Find the exact index of the last song the user cleared
+  // ✨ FIX: Because songs[0] is newest, any song BEFORE clearedIndex is an un-cleared new song!
   const clearedIndex = clearedUntilId ? songs.findIndex(s => String(s.id) === clearedUntilId) : -1;
-  // Only grab the songs that were uploaded AFTER the cleared one
-  const newSongs = clearedIndex !== -1 ? songs.slice(clearedIndex + 1) : songs;
-  // Take the 4 most recent un-cleared songs to show in the dropdown
-  const displaySongs = [...newSongs].reverse().slice(0, 4);
+  const newSongs = clearedIndex !== -1 ? songs.slice(0, clearedIndex) : songs;
+  // Take the 4 newest un-cleared songs to show in the dropdown (no .reverse() needed!)
+  const displaySongs = newSongs.slice(0, 4);
 
   return (
     <nav className='w-full flex flex-wrap justify-between items-center py-3 px-4 md:px-6 text-white border-neutral-800 gap-y-3 md:gap-y-0' style={{background:'transparent', borderBottom:'1.3px solid rgba(119, 104, 104, 0.337)'}}>
@@ -91,7 +85,7 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
           </svg>
         </button>
         
-        <div className="flex items-center gap-1.5 cursor-pointer">
+        <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => navigateTo('/')}>
           <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center">
             <svg className="w-3 h-3 text-white fill-current translate-x-[1px]" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
@@ -108,8 +102,8 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
         )}
       </div>
       
-      {/* 📡 Right Utility Panel */}
-      <div className="flex items-center gap-4 md:gap-6 shrink-0 relative order-2 md:order-3">
+      {/* 📡 Right Utility Panel (With z-[9999] so it hovers cleanly on mobile) */}
+      <div className="flex items-center gap-4 md:gap-6 shrink-0 relative order-2 md:order-3 z-[9999]">
 
         {/* NOTIFICATION BELL BUTTON */}
         <button 
@@ -127,12 +121,11 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
 
         {/* 📋 DYNAMIC NOTIFICATION DROPDOWN */}
         {showNotifications && (
-          <div className="absolute right-0 top-full mt-3 w-80 sm:w-[400px] max-w-[90vw] bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl z-50 overflow-hidden transform origin-top-right transition-all">
+          <div className="absolute right-0 top-full mt-3 w-80 sm:w-[400px] max-w-[90vw] bg-black border-2 border-neutral-700 rounded-2xl shadow-2xl z-[9999] overflow-hidden transform origin-top-right transition-all">
             
-            <div className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900/50">
+            <div className="flex items-center justify-between p-4 border-b border-neutral-800 bg-neutral-900">
               <h3 className="text-white font-bold text-lg">Recent Updates</h3>
               
-              {/* Only show the clear button if there are actually notifications to clear */}
               {displaySongs.length > 0 && (
                 <button 
                   onClick={handleMarkAllAsRead}
@@ -143,9 +136,8 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
               )}
             </div>
 
-            <div className="max-h-[60vh] overflow-y-auto scrollbar-hide flex flex-col bg-neutral-900/90 backdrop-blur-md">
+            <div className="max-h-[60vh] overflow-y-auto scrollbar-hide flex flex-col bg-neutral-900">
               
-              {/* ✨ 5. RENDERS BASED ON displaySongs */}
               {displaySongs.length === 0 ? (
                 <div className="p-8 text-center text-neutral-400">
                    <p className="font-medium text-white">No new notifications</p>
@@ -159,7 +151,7 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
                       if(onPlay) onPlay(song);
                       setShowNotifications(false);
                     }}
-                    className="p-4 hover:bg-neutral-800/80 cursor-pointer transition-colors border-b border-neutral-800/50 flex gap-4 group"
+                    className="p-4 hover:bg-neutral-800 cursor-pointer transition-colors border-b border-neutral-800/50 flex gap-4 group"
                   >
                     <div className="w-12 h-12 rounded-full bg-neutral-800 overflow-hidden shrink-0 shadow-md group-hover:scale-105 transition-transform relative">
                       {song.coverUrl ? (
@@ -185,9 +177,8 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
                 ))
               )}
 
-              {/* Only show "caught up" message if there are notifications being shown */}
               {displaySongs.length > 0 && (
-                <div className="p-4 text-center bg-neutral-950/50 border-t border-neutral-800/50">
+                <div className="p-4 text-center bg-neutral-950 border-t border-neutral-800/50">
                   <p className="text-xs text-neutral-500 font-medium">You're all caught up!</p>
                 </div>
               )}
@@ -199,13 +190,13 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
         {/* PROFILE ICON CONTROLLER */}
         <button 
           onClick={() => { navigateTo(user ? '/account' : '/login') }}
-          className="focus:outline-none transition transform hover:scale-105"
+          className="focus:outline-none transition transform hover:scale-105 cursor-pointer"
         >
           {user ? (
             userProfile?.avatarUrl ? (
               <img src={userProfile.avatarUrl} alt="Profile" className="w-9 h-9 rounded-full object-cover border border-neutral-700" />
             ) : (
-              <div className="w-9 h-9 bg-[#1ed760] text-black rounded-full flex items-center justify-center font-bold text-sm">
+              <div className="w-9 h-9 bg-[#1ed760] text-black rounded-full flex items-center justify-center font-bold text-sm shadow-[0_0_10px_rgba(30,215,96,0.3)]">
                 {userProfile?.name ? userProfile.name[0].toUpperCase() : (user.username ? user.username[0].toUpperCase() : 'U')}
               </div>
             )
