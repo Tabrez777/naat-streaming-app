@@ -120,7 +120,8 @@ function App() {
   useEffect(() => {
     const fetchMusicData = async () => {
       try {
-        const allSnapshot = await getDocs(collection(db, "songs"));
+        const songsQuery = query(collection(db, "songs"), orderBy("createdAt", "desc"));
+        const allSnapshot = await getDocs(songsQuery);
         const songsList = allSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setSongs(songsList);
 
@@ -414,7 +415,10 @@ function App() {
         userProfile={userProfile}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         closeSidebar={() => setIsSidebarOpen(false)}
-        onAdminClick={() => setShowAdmin(true)} 
+         onAdminClick={() => { 
+          setShowAdmin(true); 
+          navigate('/admin'); 
+        }} 
         songs={songs}
         onPlay={(naat) => setCurrentNaat(naat)}
       />
@@ -468,7 +472,7 @@ function App() {
             <Route path="/settings" element={<SettingsView userProfile={userProfile} onUpdateProfile={setUserProfile} onLogout={handleLogout} />} />
             <Route path="/playlist/:id" element={<PlaylistView allPlaylists={playlists} onPlay={(naat) => setCurrentNaat(naat)} onUnlike={handleUnlikeNaat} />} />
             <Route path="/artist/:id" element={<ArtistView artists={artists} songs={songs} onPlay={(naat) => setCurrentNaat(naat)} onBack={() => navigate('/')} />} />
-            <Route path="/admin" element={(user?.email === "mdtaffique@gmail.com" || showAdmin) ? <AdminDashboard onAddSong={handleAddNewSong} onBack={() => setShowAdmin(false)} /> : <div className="p-10">Access Denied</div>} />
+             <Route path="/admin" element={(user?.email === "mdtaffique@gmail.com" || showAdmin) ? <AdminDashboard onAddSong={handleAddNewSong} onBack={() => { setShowAdmin(false); navigate('/'); }} /> : <div className="p-10">Access Denied</div>} />
 
             <Route path="/login" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} artists={artists} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />
             <Route path="/signup" element={<Main onPlay={(naat) => { setCurrentNaat(naat); navigate('/player'); }} songs={songs} setSongs={setSongs} artists={artists} onArtistClick={(artist) => { setSelectedArtist(artist); navigate(`/artist/${artist.id}`); }} recentlyPlayed={recentlyPlayed} trendingSongs={trendingSongs} />} />

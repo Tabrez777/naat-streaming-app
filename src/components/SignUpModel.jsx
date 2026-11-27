@@ -53,7 +53,7 @@ const SignupModal = ({ onClose, onSignupSuccess, onSwitchToLogin }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
       {/* ⚡ Change 1: Added max-w-2xl on desktop windows (md:) to handle a two-column width expansion safely */}
       <div className="bg-neutral-900 w-full max-w-md md:max-w-2xl p-6 md:p-8 rounded-2xl border border-neutral-800 shadow-2xl relative my-auto transition-all duration-300">
         

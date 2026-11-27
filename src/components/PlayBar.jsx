@@ -25,8 +25,8 @@ const PlayBar = ({
 
   return (
     // Height updated to 90px on desktop to fit the beautiful stacked center controls
-    <div className={`fixed bottom-0 left-0 w-full h-[68px] md:h-[90px] bg-[#000000] md:bg-[#181818] border-t border-neutral-800 flex justify-between items-center px-3 md:px-4 z-[999] transform transition-transform duration-500 ease-out ${
-      isVisible ? 'translate-y-0' : 'translate-y-full'
+    <div className={`fixed bottom-2 md:bottom-6 left-1/2 -translate-x-1/2 w-[95%] md:w-[85%] max-w-[1000px] h-[72px] md:h-[90px] bg-[#000000] md:bg-[#181818] border border-neutral-800 rounded-[28px] md:rounded-[40px] shadow-[0_10px_40px_rgba(0,0,0,0.8)] flex justify-between items-center px-4 md:px-8 z-[999] transform transition-all duration-500 ease-out ${
+      isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[150%] opacity-0'
     }`}>
       
       {/* 1. Left Area: Track Info */}
@@ -161,9 +161,9 @@ const PlayBar = ({
       </div>
 
       {/* ✨ Mobile Mini Progress Bar! */}
-      <div className="absolute bottom-0 left-0 w-full h-[2px] bg-neutral-800 md:hidden overflow-hidden">
+      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-[85%] h-[2px] bg-neutral-800 md:hidden overflow-hidden rounded-full">
         <div 
-          className="h-full bg-white rounded-r-full transition-all duration-150 ease-out" 
+          className="h-full bg-white rounded-full transition-all duration-150 ease-out" 
           style={{ width: `${progressPercent}%` }}
         />
       </div>

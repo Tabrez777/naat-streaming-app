@@ -7,6 +7,34 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
   
   const [isCreating, setIsCreating] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
+  
+  // Resizable sidebar logic
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    return parseInt(localStorage.getItem('sidebarWidth')) || 256;
+  });
+  
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleMouseMove = (e) => {
+    let newWidth = e.clientX;
+    if (newWidth < 200) newWidth = 200; // Min width
+    if (newWidth > 500) newWidth = 500; // Max width
+    setSidebarWidth(newWidth);
+  };
+
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  useEffect(() => {
+    localStorage.setItem('sidebarWidth', sidebarWidth);
+  }, [sidebarWidth]);
+
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthViewOpen = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/account';
@@ -100,11 +128,23 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
       )}
 
       {/* ✨ FIX 2: Used h-[100dvh] and added mobile bottom padding (pb-28) so playlists aren't hidden behind PlayBar */}
-       <aside className={`h-[100dvh] text-white flex flex-col pt-3 pb-28 md:pb-6 select-none border-neutral-900 fixed md:relative top-0 left-0 z-50 transition-all duration-300 ease-in-out bg-black md:bg-transparent overflow-hidden ${
+       <aside className={`h-[100dvh] text-white flex flex-col pt-3 pb-28 md:pb-6 select-none border-neutral-900 fixed md:relative top-0 left-0 z-50 bg-black md:bg-transparent overflow-hidden ${
         isAuthViewOpen 
           ? 'w-0 px-0 opacity-0 border-none -translate-x-full' // Completely hide during Login
-          : `w-64 px-4 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}` // Normal Behavior
-      }`} style={{ borderRight: isAuthViewOpen ? 'none' : '1.4px solid #77686856' }}>
+          : `px-4 ${isOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64 md:translate-x-0'}` // Normal Behavior
+      }`} style={{ 
+          width: isAuthViewOpen ? 0 : (window.innerWidth < 768 ? 256 : sidebarWidth),
+          borderRight: isAuthViewOpen ? 'none' : '1.4px solid #77686856',
+          transition: 'transform 300ms ease-in-out'
+      }}>
+        
+        {/* Drag handle for resizing (Desktop only) */}
+        {!isAuthViewOpen && (
+          <div 
+            className="absolute top-0 right-0 w-[5px] h-full cursor-col-resize hover:bg-neutral-600 transition-colors z-50 hidden md:block"
+            onMouseDown={handleMouseDown}
+          />
+        )}
         
         {/* 🧭 Main Navigation Links */}
         <div className="flex flex-col gap-1 mb-2">
@@ -188,8 +228,8 @@ const Sidebar = ({ playlists = [], setPlaylists, onPlaylistSelect, activeTab, se
               onContextMenu={(e) => handleRightClick(e, playlist)}
               className="flex items-center gap-3 p-2 hover:bg-neutral-800 rounded-md cursor-pointer transition group"
             >
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-neutral-200 group-hover:text-white transition-colors truncate w-48">
+              <div className="flex flex-col flex-1 min-w-0">
+                <span className="text-sm font-medium text-neutral-200 group-hover:text-white transition-colors truncate w-full pr-2">
                   {playlist.isPinned ? "📌 " : ""}{playlist.name}
                 </span>
                 <span className="text-xs text-neutral-400 mt-0.5">

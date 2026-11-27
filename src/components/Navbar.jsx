@@ -17,13 +17,11 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
   const [hasUnread, setHasUnread] = useState(false);
   const [clearedUntilId, setClearedUntilId] = useState(() => localStorage.getItem('clearedUntilId') || null);
 
-  // ✨ FIX: Look at songs[0] because that is where newly uploaded tracks arrive!
   useEffect(() => {
     if (songs.length > 0) {
       const latestSongId = songs[0]?.id;
       const seenId = localStorage.getItem('lastSeenSongId');
       
-      // If the newest song ID differs from what they last viewed, light up the red dot!
       if (latestSongId && String(latestSongId) !== seenId) {
         setHasUnread(true);
       }
@@ -68,10 +66,8 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
     navigateTo('/'); 
   };
 
-  // ✨ FIX: Because songs[0] is newest, any song BEFORE clearedIndex is an un-cleared new song!
   const clearedIndex = clearedUntilId ? songs.findIndex(s => String(s.id) === clearedUntilId) : -1;
   const newSongs = clearedIndex !== -1 ? songs.slice(0, clearedIndex) : songs;
-  // Take the 4 newest un-cleared songs to show in the dropdown (no .reverse() needed!)
   const displaySongs = newSongs.slice(0, 4);
 
   return (
@@ -227,12 +223,16 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
         />
       )}
 
+      {/* ✨ THE MAGIC SYNC FIX IS RIGHT HERE 👇 */}
       {currentPath === '/account' && user && (
         <Account 
           user={user} 
           onClose={() => navigateTo('/')} 
           onLogout={onLogout} 
-          onAdminClick={onAdminClick}
+          onAdminClick={() => {
+            navigateTo('/admin'); // 1. Tells the modal to gracefully close itself
+            onAdminClick();       // 2. Safely changes the page to the Admin Dashboard
+          }}
         />
       )}
   
