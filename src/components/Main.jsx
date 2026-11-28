@@ -101,19 +101,19 @@ const Main = ({ onPlay, songs, setSongs, setSelectedArtist, onArtistClick, recen
     <div className='w-full min-h-full pb-24 text-white bg-transparent transition-all duration-300'>
       
       {/* ✨ ADVANCED UI: ROYAL AMBIENT FILTER BAR */}
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-xl px-4 md:px-6 py-4 flex gap-3 overflow-x-auto scrollbar-hide border-b border-white/10 shadow-lg">
+      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-lg px-3 md:px-6 py-2.5 md:py-4 flex gap-2 md:gap-3 overflow-x-auto scrollbar-hide border-b border-white/10 shadow-lg">
         {['All', 'Naats', 'Qawwali', 'Tilawat'].map((category) => (
           <button
             key={category}
             onClick={() => setActiveFilter(category)}
-            className={`px-6 py-2 cursor-pointer rounded-full text-sm tracking-wide whitespace-nowrap transition-all duration-300 transform active:scale-95 ${getFilterButtonStyle(category)}`}
+            className={`px-4 md:px-6 py-1.5 md:py-2 cursor-pointer rounded-full text-xs md:text-sm tracking-wide whitespace-nowrap transition-all duration-300 transform active:scale-95 ${getFilterButtonStyle(category)}`}
           >
             {category}
           </button>
         ))}
       </div>
       
-      <div className="px-4 md:px-6 pt-4 flex flex-col gap-8">
+      <div className="px-2 md:px-6 pt-3 md:pt-4 flex flex-col gap-4 md:gap-8">
         
         {activeFilter === 'All' && recentlyPlayed?.length > 0 && (
           <RecentlyPlayedSection onPlay={onPlay} recentlyPlayed={recentlyPlayed} />

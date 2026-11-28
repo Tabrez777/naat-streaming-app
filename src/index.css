@@ -21,3 +21,35 @@ html, body {
   width: 100%;
   position: relative;
 }
+
+/* ✨ Mobile performance: reduce expensive effects on small screens */
+@media (max-width: 767px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Use GPU compositing for smooth scrolling */
+  .overflow-x-auto,
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+    will-change: scroll-position;
+  }
+  /* Reduce heavy box-shadows on cards */
+  .group\/card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  }
+  /* Disable backdrop-blur on category pills for perf */
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  /* Keep blur only on critical overlays (sticky bars, modals) */
+  .sticky[class*="backdrop-blur"],
+  .fixed[class*="backdrop-blur"] {
+    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(12px) !important;
+  }
+  /* Lighten transition durations */
+  img {
+    transition-duration: 300ms !important;
+  }
+}

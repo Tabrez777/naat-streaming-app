@@ -71,23 +71,23 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
   const displaySongs = newSongs.slice(0, 4);
 
   return (
-    <nav className='w-full flex flex-wrap justify-between items-center py-3 px-4 md:px-6 text-white border-neutral-800 gap-y-3 md:gap-y-0' style={{background:'transparent', borderBottom:'1.3px solid rgba(119, 104, 104, 0.337)'}}>
+    <nav className='w-full flex flex-wrap justify-between items-center py-1.5 px-3 md:py-3 md:px-6 text-white border-neutral-800 gap-y-1.5 md:gap-y-0' style={{background:'transparent', borderBottom:'1.3px solid rgba(119, 104, 104, 0.337)'}}>
       
       {/* 🍔 Left Side Group */}
       <div className="flex items-center gap-4 order-1">
-        <button onClick={toggleSidebar} className="text-white hover:bg-neutral-800 p-2 rounded-full transition duration-200 focus:outline-none md:hidden">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <button onClick={toggleSidebar} className="text-white hover:bg-neutral-800 p-1.5 md:p-2 rounded-full transition duration-200 focus:outline-none md:hidden">
+          <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
         
-        <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => navigateTo('/')}>
-          <div className="w-6 h-6 bg-[#FF0000] rounded-full flex items-center justify-center">
-            <svg className="w-3 h-3 text-white fill-current translate-x-[1px]" viewBox="0 0 24 24">
+        <div className="flex items-center gap-1 md:gap-1.5 cursor-pointer" onClick={() => navigateTo('/')}>
+          <div className="w-5 h-5 md:w-6 md:h-6 bg-[#FF0000] rounded-full flex items-center justify-center">
+            <svg className="w-2.5 h-2.5 md:w-3 md:h-3 text-white fill-current translate-x-[1px]" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
-          <span className="text-xl font-bold tracking-tight font-sans">TEZ</span>
+          <span className="text-base md:text-xl font-bold tracking-tight font-sans">TEZ</span>
         </div>
       </div>
 
@@ -99,7 +99,7 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
       </div>
       
       {/* 📡 Right Utility Panel (With z-[9999] so it hovers cleanly on mobile) */}
-      <div className="flex items-center gap-4 md:gap-6 shrink-0 relative order-2 md:order-3 z-[9999]">
+      <div className="flex items-center gap-2 md:gap-6 shrink-0 relative order-2 md:order-3 z-[9999]">
 
         {/* NOTIFICATION BELL BUTTON */}
         <button 
@@ -107,7 +107,7 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
           className="relative text-neutral-300 cursor-pointer hover:text-white transition duration-200 focus:outline-none p-2 rounded-full hover:bg-neutral-800" 
           aria-label="Notifications"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
           </svg>
           {hasUnread && (
@@ -190,15 +190,15 @@ const Navbar = ({ user, onLogin, onLogout, toggleSidebar, onAdminClick, userProf
         >
           {user ? (
             userProfile?.avatarUrl ? (
-              <img src={userProfile.avatarUrl} alt="Profile" className="w-9 h-9 rounded-full object-cover border border-neutral-700" />
+              <img src={userProfile.avatarUrl} alt="Profile" className="w-7 h-7 md:w-9 md:h-9 rounded-full object-cover border border-neutral-700" />
             ) : (
-              <div className="w-9 h-9 bg-[#1ed760] text-black rounded-full flex items-center justify-center font-bold text-sm shadow-[0_0_10px_rgba(30,215,96,0.3)]">
+              <div className="w-7 h-7 md:w-9 md:h-9 bg-[#1ed760] text-black rounded-full flex items-center justify-center font-bold text-xs md:text-sm shadow-[0_0_10px_rgba(30,215,96,0.3)]">
                 {userProfile?.name ? userProfile.name[0].toUpperCase() : (user.username ? user.username[0].toUpperCase() : 'U')}
               </div>
             )
           ) : (
-            <div className="w-9 h-9 bg-neutral-800 text-neutral-400 rounded-full flex items-center justify-center border border-neutral-700 hover:text-white hover:border-neutral-500">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <div className="w-7 h-7 md:w-9 md:h-9 bg-neutral-800 text-neutral-400 rounded-full flex items-center justify-center border border-neutral-700 hover:text-white hover:border-neutral-500">
+              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>

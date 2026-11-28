@@ -27,14 +27,14 @@ const ArtistSection = ({ artists, onArtistClick }) => {
     <div 
       key={artist.id}
       onClick={() => handleArtistClick(artist)}
-      className={`group/card p-4 rounded-2xl hover:bg-neutral-800/60 transition-all duration-500 cursor-pointer flex flex-col items-center border border-transparent hover:border-neutral-700/50 hover:shadow-2xl hover:shadow-black ${isGrid ? 'w-full' : 'shrink-0 w-[180px]'}`}
+      className={`group/card p-2.5 md:p-4 rounded-xl md:rounded-2xl hover:bg-neutral-800/60 transition-all duration-300 cursor-pointer flex flex-col items-center border border-transparent hover:border-neutral-700/50 hover:shadow-2xl hover:shadow-black ${isGrid ? 'w-full' : 'shrink-0 w-[130px] md:w-[180px]'}`}
     >
-      <div className="w-full aspect-square rounded-full overflow-hidden mb-4 shadow-xl shadow-black/40 transition-all duration-500 group-hover/card:shadow-2xl group-hover/card:-translate-y-2 group-hover/card:shadow-[#1ed760]/20 relative">
-        <img src={artist.imageUrl || "/default-avatar.png"} alt={artist.name} className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110" />
+      <div className="w-full aspect-square rounded-full overflow-hidden mb-2 md:mb-4 shadow-xl shadow-black/40 transition-all duration-300 md:group-hover/card:-translate-y-2 md:group-hover/card:shadow-[#1ed760]/20 relative">
+        <img src={artist.imageUrl || "/default-avatar.png"} alt={artist.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105" />
         <div className="absolute inset-0 bg-black/0 group-hover/card:bg-black/10 transition-colors duration-300"></div>
       </div>
-      <h3 className="text-white text-base font-bold w-full text-center truncate group-hover/card:text-[#1ed760] transition-colors">{artist.name}</h3>
-      <p className="text-neutral-400 text-sm w-full text-center truncate font-medium mt-1">{artist.profession || "Artist"}</p>
+      <h3 className="text-white text-sm md:text-base font-bold w-full text-center truncate group-hover/card:text-[#1ed760] transition-colors">{artist.name}</h3>
+      <p className="text-neutral-400 text-xs md:text-sm w-full text-center truncate font-medium mt-0.5 md:mt-1">{artist.profession || "Artist"}</p>
     </div>
   );
 
@@ -43,15 +43,15 @@ const ArtistSection = ({ artists, onArtistClick }) => {
     return (
       // ✨ FIX: "fixed inset-0" covers the screen. "overflow-y-auto" gives it a perfect scrollbar!
       <div className="fixed inset-0 z-[900] bg-[#121212] overflow-y-auto animate-in fade-in duration-300">
-        <div className="sticky top-0 z-[910] bg-[#121212]/95 backdrop-blur-md px-8 py-6 flex items-center gap-6 border-b border-white/5 shadow-2xl">
-          <button onClick={() => setShowAll(false)} className="p-3 rounded-full bg-black hover:bg-neutral-800 hover:scale-105 transition-all cursor-pointer text-white shadow-lg border border-white/10">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+        <div className="sticky top-0 z-[910] bg-[#121212]/95 backdrop-blur-md px-4 md:px-8 py-4 md:py-6 flex items-center gap-3 md:gap-6 border-b border-white/5 shadow-2xl">
+          <button onClick={() => setShowAll(false)} className="p-2 md:p-3 rounded-full bg-black hover:bg-neutral-800 hover:scale-105 transition-all cursor-pointer text-white shadow-lg border border-white/10">
+            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <h1 className="text-white text-4xl font-extrabold tracking-tight">Popular Artists</h1>
+          <h1 className="text-white text-xl md:text-4xl font-extrabold tracking-tight">Popular Artists</h1>
         </div>
         
         {/* pb-32 ensures the PlayBar doesn't cover your bottom artists */}
-        <div className="p-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 pb-32">
+        <div className="p-3 md:p-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-6 pb-32">
           {visibleArtists.map(artist => renderArtistCard(artist, true))}
         </div>
       </div>
@@ -60,9 +60,9 @@ const ArtistSection = ({ artists, onArtistClick }) => {
 
   // 🚀 2. STANDARD HORIZONTAL SCROLL VIEW
   return (
-    <div className="p-6 relative group font-sans">
-      <div className="flex items-center justify-between mb-6 pr-2">
-        <h2 className="text-white text-2xl font-bold tracking-tight">Popular Artists</h2>
+    <div className="p-3 md:p-6 relative group font-sans">
+      <div className="flex items-center justify-between mb-3 md:mb-6 pr-2">
+        <h2 className="text-white text-lg md:text-2xl font-bold tracking-tight">Popular Artists</h2>
         
         {visibleArtists.length > 5 && (
           <button onClick={() => setShowAll(true)} className="group/btn flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-900/60 hover:bg-neutral-800 transition-all duration-300 backdrop-blur-md border border-neutral-800 hover:border-neutral-600 cursor-pointer">
@@ -72,7 +72,7 @@ const ArtistSection = ({ artists, onArtistClick }) => {
         )}
       </div>
       
-      <div ref={scrollRef} className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div ref={scrollRef} className="flex gap-3 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {visibleArtists.slice(0, 5).map(artist => renderArtistCard(artist, false))}
       </div>
 
